@@ -3,7 +3,8 @@ page     =  <div>
               <p>This software doesn't work on Windows.  Linux/Unix only at this point.</p>
               
               <h2>Git Repo</h2>
-              <p> The <em>git</em> repo is at <% anchorTag "http://github.com/alsonkemp/turbinado/tree/master" "http://github.com/alsonkemp/turbinado/tree/master" %>.  Push patches into the repo.</p>
+              <p> The <em>git</em> repo for the framework is at <% anchorTag "http://github.com/alsonkemp/turbinado/tree/master" "http://github.com/alsonkemp/turbinado/tree/master" %>.</p>
+              <p> The <em>git</em> repo for the website   is at <% anchorTag "http://github.com/alsonkemp/turbinado-website/tree/master" "http://github.com/alsonkemp/turbinadoi-website/tree/master" %>.</p>
               
               <h2>To Do</h2>
               <ul class="standard-list">
