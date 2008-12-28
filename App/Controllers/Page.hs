@@ -31,7 +31,7 @@ create = do conn <- liftIO $ fromJust $ databaseConnection
             _content <- getParam_u "content"
             case id' of
               Nothing -> redirectTo "/Home"
-              Just i  -> do App.Models.PageModel.insert conn Page {authorId = Nothing,_id = i, title = _title, content = _content, version = 1}
+              Just i  -> do App.Models.PageModel.insert conn Page {_id = i, title = _title, content = _content}
                             redirectTo $ "/Page/Show/" ++ i
 edit :: Controller ()
 edit  = do conn <- liftIO $ fromJust $ databaseConnection

@@ -13,7 +13,7 @@ import qualified Database.HDBC as HDBC
 import System.Time
 
 data Page = Page {
-    _id :: String,    authorId :: Maybe Int64,    content :: String,    title :: String,    version :: Int64
+    _id :: String,    content :: String,    title :: String
     } deriving (Eq, Show)
 
 instance DatabaseModel Page where
@@ -21,30 +21,30 @@ instance DatabaseModel Page where
 
 instance IsModel Page where
     insert conn m = do
-        res <- liftIO $ HDBC.run conn " INSERT INTO page (_id,author_id,content,title,version) VALUES (?,?,?,?,?)"
-                  [HDBC.toSql $ _id m , HDBC.toSql $ authorId m , HDBC.toSql $ content m , HDBC.toSql $ title m , HDBC.toSql $ version m]
+        res <- liftIO $ HDBC.run conn " INSERT INTO page (_id,content,title) VALUES (?,?,?)"
+                  [HDBC.toSql $ _id m , HDBC.toSql $ content m , HDBC.toSql $ title m]
         liftIO $ HDBC.commit conn
         i <- liftIO $ HDBC.catchSql (HDBC.quickQuery' conn "SELECT lastval()" []) (\_ -> HDBC.commit conn >> (return $ [[HDBC.toSql (0 :: Int)]]) ) 
         return $ HDBC.fromSql $ head $ head i
     findAll conn = do
-        res <- liftIO $ HDBC.quickQuery' conn "SELECT _id , author_id , content , title , version FROM page" []
-        return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2)) (HDBC.fromSql (r !! 3)) (HDBC.fromSql (r !! 4))) res
+        res <- liftIO $ HDBC.quickQuery' conn "SELECT _id , content , title FROM page" []
+        return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
     findAllBy conn ss sp = do
-        res <- liftIO $ HDBC.quickQuery' conn ("SELECT _id , author_id , content , title , version FROM page WHERE (" ++ ss ++ ") ")  sp
-        return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2)) (HDBC.fromSql (r !! 3)) (HDBC.fromSql (r !! 4))) res
+        res <- liftIO $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ")  sp
+        return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
     findOneBy conn ss sp = do
-        res <- liftIO $ HDBC.quickQuery' conn ("SELECT _id , author_id , content , title , version FROM page WHERE (" ++ ss ++ ") LIMIT 1")  sp
-        return $ (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2)) (HDBC.fromSql (r !! 3)) (HDBC.fromSql (r !! 4))) (head res)
+        res <- liftIO $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") LIMIT 1")  sp
+        return $ (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) (head res)
 instance HasFindByPrimaryKey Page  (String)  where
     find conn pk@(pk1) = do
-        res <- liftIO $ HDBC.quickQuery' conn ("SELECT _id , author_id , content , title , version FROM page WHERE (_id = ? )") [HDBC.toSql pk1]
+        res <- liftIO $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (_id = ? )") [HDBC.toSql pk1]
         case res of
           [] -> throwDyn $ HDBC.SqlError
                            {HDBC.seState = "",
                             HDBC.seNativeError = (-1),
                             HDBC.seErrorMsg = "No record found when finding by Primary Key:page : " ++ (show pk)
                            }
-          r:[] -> return $ Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2)) (HDBC.fromSql (r !! 3)) (HDBC.fromSql (r !! 4))
+          r:[] -> return $ Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))
           _ -> throwDyn $ HDBC.SqlError
                            {HDBC.seState = "",
                             HDBC.seNativeError = (-1),
@@ -52,7 +52,7 @@ instance HasFindByPrimaryKey Page  (String)  where
                            }
 
     update conn m = do
-        res <- liftIO $ HDBC.run conn "UPDATE page SET (_id , author_id , content , title , version) = (?,?,?,?,?) WHERE (_id = ? )"
-                  [HDBC.toSql $ _id m , HDBC.toSql $ authorId m , HDBC.toSql $ content m , HDBC.toSql $ title m , HDBC.toSql $ version m, HDBC.toSql $ _id m]
+        res <- liftIO $ HDBC.run conn "UPDATE page SET (_id , content , title) = (?,?,?) WHERE (_id = ? )"
+                  [HDBC.toSql $ _id m , HDBC.toSql $ content m , HDBC.toSql $ title m, HDBC.toSql $ _id m]
         liftIO $ HDBC.commit conn
         return ()
