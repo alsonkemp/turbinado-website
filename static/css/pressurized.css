@@ -51,7 +51,7 @@ a:hover {
 
 #wrapper {
 	width: 910px;
-	margin: 0 auto 20px auto;
+	margin: 0 auto 10px auto;
 	/* padding: 20px; */
 }
 
@@ -137,7 +137,7 @@ a:hover {
 
 #menu {
 	width: 910px;
-	height: 50px;
+	height: 30px;
 	margin: 0 auto;
 	padding: 0;
 }
@@ -195,9 +195,9 @@ a:hover {
 
 #content {
 	/* float: right; */
-	width: 590px;
+	/* width: 590px; */
 	/* padding: 20px 30px 0 0; */
-	padding: 0px 30px 0 0;
+	/* padding: 0px 30px 0 0; */
 }
 
 .post {
@@ -338,3 +338,26 @@ a:hover {
 	color: #FFFFFF;
 	border-bottom: 1px #FFFFFF dotted;
 }
+
+
+
+.page-listing {
+  color: #FFFFFF;
+  float:left; 
+  padding-top: 5px; 
+  padding-left: 10px; 
+  padding-bottom: 10px; 
+  padding-right: 5px; 
+  background-color: #300000; 
+  width: 150px;
+}
+
+.page-listing h1 {
+  margin: 0px;
+  margin-bottom: 5px;
+}
+
+.page-content {
+  margin-left: 175px;
+}
+

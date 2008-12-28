@@ -1,4 +1,12 @@
-page =  <div>
+markup= <div>
+          <script type="text/javascript" src="/js/tiny_mce/tiny_mce.js"></script>
+          <script type="text/javascript">
+            tinyMCE.init({
+              mode : "exact",
+              elements : "content"
+            });
+          </script>
+
           <form action=(getViewDataValue_u "save-url" :: View String) method="post">
             <div>
               Title: 
@@ -6,8 +14,8 @@ page =  <div>
               </div>
               <div>
               Content:
-              <textarea rows="25" columns="80" name="content" id="content">
-                <% (getViewDataValue_u "page-content" :: View String) %>
+              <textarea rows="25" cols="126" name="content" id="content">
+                <% getViewDataValue_u "page-content" :: View String %>
               </textarea>
             </div>
             <input type="submit" value="Save"/>

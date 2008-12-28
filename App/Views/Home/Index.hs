@@ -1,4 +1,4 @@
-page =  <div>
+markup= <div>
           <h1>Turbinado?</h1>
           <div style="float:right">
             <img src="http://upload.wikimedia.org/wikipedia/en/thumb/0/0e/TurbinadoSugar.jpg/757px-TurbinadoSugar.jpg" width="300" /> 
@@ -16,7 +16,7 @@ page =  <div>
             <li> A fast HTTP server with static- and dynamic-content serving capabilities; </li>
             <li> Views built using a simple HTML-like templating syntax combined with tag-matching to guard against invalid HTML; </li>
             <li> Automagic recompilation of Controllers, Layouts and Views; </li>
-            <li> <span style="font-size:10px; font-style:italic">coming soon</span> A database <% anchorTag "http://en.wikipedia.org/wiki/Object-relational_mapping" "ORM" %> to make database interaction (especially with PostgreSQL) joyful; </li>
+            <li> A database <% anchorTag "http://en.wikipedia.org/wiki/Object-relational_mapping" "ORM" %> to make database interaction (especially with PostgreSQL) joyful; </li>
             <li> A rich set of tags to make designing pages simpler;. </li>
           </ul>
 

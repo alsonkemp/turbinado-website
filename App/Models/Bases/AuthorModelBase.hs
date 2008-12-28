@@ -10,7 +10,11 @@ module App.Models.Bases.AuthorModelBase (
 
 import App.Models.Bases.ModelBase
 import qualified Database.HDBC as HDBC
+import Data.Maybe
 import System.Time
+
+import Turbinado.Environment.Types
+import Turbinado.Environment.Database
 
 data Author = Author {
     id :: Int64,    name :: Maybe String
@@ -20,24 +24,47 @@ instance DatabaseModel Author where
     tableName _ = "author"
 
 instance IsModel Author where
-    insert conn m = do
-        res <- liftIO $ HDBC.run conn " INSERT INTO author (id,name) VALUES (?,?)"
+    insert m returnId = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res  <- liftIO $ HDBC.handleSqlError $ HDBC.run conn " INSERT INTO author (id,name) VALUES (?,?)"
                   [HDBC.toSql $ id m , HDBC.toSql $ name m]
-        liftIO $ HDBC.commit conn
-        i <- liftIO $ HDBC.catchSql (HDBC.quickQuery' conn "SELECT lastval()" []) (\_ -> HDBC.commit conn >> (return $ [[HDBC.toSql (0 :: Int)]]) ) 
-        return $ HDBC.fromSql $ head $ head i
-    findAll conn = do
-        res <- liftIO $ HDBC.quickQuery' conn "SELECT id , name FROM author" []
+        liftIO $ HDBC.handleSqlError $ HDBC.commit conn
+        if returnId
+          then do i <- liftIO $ HDBC.catchSql (HDBC.handleSqlError $ HDBC.quickQuery' conn "SELECT lastval()" []) (\_ -> HDBC.commit conn >> (return $ [[HDBC.toSql (0 :: Int)]]) ) 
+                  return $ HDBC.fromSql $ head $ head i
+          else return Nothing
+    findAll = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn "SELECT id , name FROM author" []
         return $ map (\r -> Author (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1))) res
-    findAllBy conn ss sp = do
-        res <- liftIO $ HDBC.quickQuery' conn ("SELECT id , name FROM author WHERE (" ++ ss ++ ") ")  sp
+    findAllWhere ss sp = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT id , name FROM author WHERE (" ++ ss ++ ") ")  sp
         return $ map (\r -> Author (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1))) res
-    findOneBy conn ss sp = do
-        res <- liftIO $ HDBC.quickQuery' conn ("SELECT id , name FROM author WHERE (" ++ ss ++ ") LIMIT 1")  sp
+    findAllOrderBy op = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT id , name FROM author ORDER BY ?") [HDBC.toSql op]
+        return $ map (\r -> Author (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1))) res
+    findAllWhereOrderBy ss sp op = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT id , name FROM author WHERE (" ++ ss ++ ") ORDER BY ? ")  (sp ++ [HDBC.toSql op])
+        return $ map (\r -> Author (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1))) res
+    findOneWhere ss sp = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT id , name FROM author WHERE (" ++ ss ++ ") LIMIT 1") sp
+        return $ (\r -> Author (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1))) (head res)
+    findOneOrderBy op = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT id , name FROM author ORDER BY ? LIMIT 1")  [HDBC.toSql op]
+        return $ (\r -> Author (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1))) (head res)
+    findOneWhereOrderBy ss sp op = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT id , name FROM author WHERE (" ++ ss ++ ") ORDER BY ? LIMIT 1")  (sp ++ [HDBC.toSql op])
         return $ (\r -> Author (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1))) (head res)
 instance HasFindByPrimaryKey Author  (Int64)  where
-    find conn pk@(pk1) = do
-        res <- liftIO $ HDBC.quickQuery' conn ("SELECT id , name FROM author WHERE (id = ? )") [HDBC.toSql pk1]
+    find pk@(pk1) = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT id , name FROM author WHERE (id = ? )") [HDBC.toSql pk1]
         case res of
           [] -> throwDyn $ HDBC.SqlError
                            {HDBC.seState = "",
@@ -51,8 +78,9 @@ instance HasFindByPrimaryKey Author  (Int64)  where
                             HDBC.seErrorMsg = "Too many records found when finding by Primary Key:author : " ++ (show pk)
                            }
 
-    update conn m = do
-        res <- liftIO $ HDBC.run conn "UPDATE author SET (id , name) = (?,?) WHERE (id = ? )"
+    update m = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.run conn "UPDATE author SET (id , name) = (?,?) WHERE (id = ? )"
                   [HDBC.toSql $ id m , HDBC.toSql $ name m, HDBC.toSql $ id m]
-        liftIO $ HDBC.commit conn
+        liftIO $ HDBC.handleSqlError $ HDBC.commit conn
         return ()

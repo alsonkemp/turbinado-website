@@ -13,7 +13,7 @@ import Control.Exception
 import Database.HDBC
 import Data.Int
 
-import Turbinado.Controller.Monad
+import Turbinado.Environment.Types
 
 -- Using phantom types here 
 class DatabaseModel m where
@@ -21,16 +21,21 @@ class DatabaseModel m where
 
 type SelectString = String
 type SelectParams = [SqlValue]
+type OrderByParams  = String
 
 class (DatabaseModel model) =>
         IsModel model where
-        insert    :: (MonadIO m, IConnection conn) => conn -> model -> m Integer
-        findAll   :: (MonadIO m, IConnection conn) => conn -> m [model]
-        findAllBy :: (MonadIO m, IConnection conn) => conn -> SelectString -> SelectParams -> m [model]
-        findOneBy :: (MonadIO m, IConnection conn) => conn -> SelectString -> SelectParams -> m model
+        insert    :: (HasEnvironment m) => model -> Bool -> m (Maybe Integer)
+        findAll   :: (HasEnvironment m) => m [model]
+        findAllWhere :: (HasEnvironment m) => SelectString -> SelectParams -> m [model]
+        findAllOrderBy :: (HasEnvironment m) => OrderByParams -> m [model]
+        findAllWhereOrderBy :: (HasEnvironment m) => SelectString -> SelectParams -> OrderByParams -> m [model]
+        findOneWhere :: (HasEnvironment m) => SelectString -> SelectParams -> m model
+        findOneOrderBy :: (HasEnvironment m) => OrderByParams -> m model
+        findOneWhereOrderBy :: (HasEnvironment m) => SelectString -> SelectParams -> OrderByParams -> m model
 
 class (DatabaseModel model) =>
         HasFindByPrimaryKey model primaryKey | model -> primaryKey where
-    find   :: (MonadIO m, IConnection conn) => conn -> primaryKey -> m model
-    update :: (MonadIO m, IConnection conn) => conn -> model      -> m ()   
+    find   :: (HasEnvironment m) => primaryKey -> m model
+    update :: (HasEnvironment m) => model      -> m ()   
 

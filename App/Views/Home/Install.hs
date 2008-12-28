@@ -1,4 +1,4 @@
-page =      <div>
+markup =    <div>
               <h1>Installation == Pain, Pain == Love</h1>
               <p>
                 Given the relative immaturity of Haskell's package installation tools, installation of Turbinado is fairly challenging.  With <% anchorTag "http://hackage.haskell.org/trac/hackage/wiki/CabalInstall" "cabal-install" %> this should get better, but, for now, installation is an adventure.

@@ -3,6 +3,6 @@ import Turbinado.View
 import Turbinado.View.Helpers
 import Control.Monad.Trans
 
-page :: View XML
+markup :: View XML
 -- SPLIT HERE
 
