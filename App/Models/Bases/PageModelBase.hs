@@ -16,12 +16,42 @@ import System.Time
 import Turbinado.Environment.Types
 import Turbinado.Environment.Database
 
+-- Model imports (if any)
+
+-- The data type for this model
 data Page = Page {
-    _id :: String,    content :: String,    title :: String
+    _id :: String,
+    content :: String,
+    title :: String
     } deriving (Eq, Show)
 
 instance DatabaseModel Page where
     tableName _ = "page"
+
+
+instance HasFindByPrimaryKey Page  (String)  where
+    find pk@(pk1) = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (_id = ? )") [HDBC.toSql pk1]
+        case res of
+          [] -> throwDyn $ HDBC.SqlError
+                           {HDBC.seState = "",
+                            HDBC.seNativeError = (-1),
+                            HDBC.seErrorMsg = "No record found when finding by Primary Key:page : " ++ (show pk)
+                           }
+          r:[] -> return $ Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))
+          _ -> throwDyn $ HDBC.SqlError
+                           {HDBC.seState = "",
+                            HDBC.seNativeError = (-1),
+                            HDBC.seErrorMsg = "Too many records found when finding by Primary Key:page : " ++ (show pk)
+                           }
+
+    update m = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.run conn "UPDATE page SET (_id , content , title) = (?,?,?) WHERE (_id = ? )"
+                  [HDBC.toSql $ _id m , HDBC.toSql $ content m , HDBC.toSql $ title m, HDBC.toSql $ _id m]
+        liftIO $ HDBC.handleSqlError $ HDBC.commit conn
+        return ()
 
 instance IsModel Page where
     insert m returnId = do
@@ -61,26 +91,10 @@ instance IsModel Page where
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
         res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ORDER BY ? LIMIT 1")  (sp ++ [HDBC.toSql op])
         return $ (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) (head res)
-instance HasFindByPrimaryKey Page  (String)  where
-    find pk@(pk1) = do
-        conn <- getEnvironment >>= (return . fromJust . getDatabase )
-        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (_id = ? )") [HDBC.toSql pk1]
-        case res of
-          [] -> throwDyn $ HDBC.SqlError
-                           {HDBC.seState = "",
-                            HDBC.seNativeError = (-1),
-                            HDBC.seErrorMsg = "No record found when finding by Primary Key:page : " ++ (show pk)
-                           }
-          r:[] -> return $ Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))
-          _ -> throwDyn $ HDBC.SqlError
-                           {HDBC.seState = "",
-                            HDBC.seNativeError = (-1),
-                            HDBC.seErrorMsg = "Too many records found when finding by Primary Key:page : " ++ (show pk)
-                           }
 
-    update m = do
-        conn <- getEnvironment >>= (return . fromJust . getDatabase )
-        res <- liftIO $ HDBC.handleSqlError $ HDBC.run conn "UPDATE page SET (_id , content , title) = (?,?,?) WHERE (_id = ? )"
-                  [HDBC.toSql $ _id m , HDBC.toSql $ content m , HDBC.toSql $ title m, HDBC.toSql $ _id m]
-        liftIO $ HDBC.handleSqlError $ HDBC.commit conn
-        return ()
+
+
+
+
+
+
