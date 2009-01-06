@@ -6,6 +6,10 @@ import qualified Network.URI  as URI
 
 markup = <html>
           <head>
+            <meta name="verify-v1" content="w8VesxPmDH0sX71+bZUok+LyY0eDG5aM6v8odpbkEm8=" />
+            <title>Turbinado: MVC Framework for Haskell</title>
+            <meta name="keywords" content="turbinado, haskell, mvc, model, view, controller, ruby, rails"> </meta>
+            <meta name="description" content="Turbinado is a Model-View-Controller-ish web framework written in Haskell.  Ruby On Rails comes to Haskell."> </meta>
             <% styleSheet "normalize" "screen" %>
             <% styleSheet "pressurized" "screen" %>
             <% styleSheet "turbinado" "screen" %>

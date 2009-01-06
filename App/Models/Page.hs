@@ -1,7 +1,7 @@
-module App.Models.PageModel
-  ( module App.Models.PageModel
+module App.Models.Page
+  ( module App.Models.Page
   , module App.Models.Bases.PageType
-  , module App.Models.Bases.PageFinders
+  , module App.Models.Bases.PageFunctions
   , module App.Models.Bases.PageRelations
   , module App.Models.Bases.Common
   ) where
