@@ -1,4 +1,4 @@
-import App.Models.PageModel
+import App.Models.Page
 import qualified Network.URI as URI
 
 index :: Controller ()
@@ -19,7 +19,7 @@ create :: Controller ()
 create = do id'  <- getSetting_u "id"
             _title   <- getParam_u "title"
             _content <- getParam_u "content"
-            App.Models.PageModel.insert Page {_id = id', title = _title, content = _content} False
+            App.Models.Page.insert Page {_id = id', title = _title, content = _content} False
             redirectTo $ "/Page/Show/" ++ id'
 
 edit :: Controller ()
@@ -34,7 +34,7 @@ save = do   id'  <- getSetting_u "id"
             _title   <- getParam_u "title"
             _content <- getParam_u "content"
             p <- find id'
-            App.Models.PageModel.update p {title = _title, content = _content}
+            App.Models.Page.update p {title = _title, content = _content}
             redirectTo $ "/Page/Show/" ++ id'
 
                 

@@ -1,4 +1,4 @@
-import App.Models.PageModel
+import App.Models.Page
 
 show :: Controller ()
 show  = do id'  <- getSetting_u "id"
