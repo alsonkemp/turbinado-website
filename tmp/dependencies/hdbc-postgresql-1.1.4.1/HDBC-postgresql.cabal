@@ -13,7 +13,6 @@ Description: This package provides a PostgreSQL driver for HDBC
 Stability: Stable
 
 Build-Type: Custom
-Cabal-Version: >=1.2 && < 1.3
 
 Flag splitBase
   description: Choose the new smaller, split-up package.
@@ -30,7 +29,7 @@ Library
   --Extensions: ExistentialQuantification, AllowOverlappingInstances,
   --    AllowUndecidableInstances, CPP
   Extensions: ExistentialQuantification, ForeignFunctionInterface
-  Build-Depends: base, mtl, HDBC>=1.1.0, parsec, encoding, bytestring
+  Build-Depends: base, mtl, HDBC>=1.1.0, parsec, encoding, bytestring, old-time, old-locale
   if flag(splitBase)
     Build-Depends: base >= 3, old-time
   else
