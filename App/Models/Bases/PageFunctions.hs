@@ -90,11 +90,7 @@ instance IsModel Page where
         return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
     findAllWhereOrderBy ss sp op = do
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
-<<<<<<< HEAD:App/Models/Bases/PageModelBase.hs
-        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ORDER BY  " ++ op)  sp 
-=======
         res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ORDER BY " ++ op) sp
->>>>>>> 765e0ae686c48f0146e555e92ed507e4964e87a9:App/Models/Bases/PageFunctions.hs
         return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
     findOneWhere ss sp = do
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
