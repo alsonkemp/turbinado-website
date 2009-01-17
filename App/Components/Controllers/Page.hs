@@ -1,3 +1,4 @@
+import Turbinado.Controller
 import App.Models.Page
 
 show :: Controller ()

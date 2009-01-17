@@ -35,6 +35,24 @@ instance HasFindByPrimaryKey Page  (String)  where
                             HDBC.seErrorMsg = "Too many records found when finding by Primary Key:page : " ++ (show pk)
                            }
 
+    delete pk@(pk1) = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.run conn ("DELETE FROM page WHERE (_id = ? )") [HDBC.toSql pk1]
+        case res of
+          0 -> (liftIO $ HDBC.handleSqlError $ HDBC.rollback conn) >>
+               (throwDyn $ HDBC.SqlError
+                           {HDBC.seState = "",
+                            HDBC.seNativeError = (-1),
+                            HDBC.seErrorMsg = "Rolling back.  No record found when deleting by Primary Key:page : " ++ (show pk)
+                           })
+          1 -> (liftIO $ HDBC.handleSqlError $ HDBC.commit conn) >> return ()
+          _ -> (liftIO $ HDBC.handleSqlError $ HDBC.rollback conn) >>
+               (throwDyn $ HDBC.SqlError
+                           {HDBC.seState = "",
+                            HDBC.seNativeError = (-1),
+                            HDBC.seErrorMsg = "Rolling back.  Too many records deleted when deleting by Primary Key:page : " ++ (show pk)
+                           })
+
     update m = do
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
         res <- liftIO $ HDBC.handleSqlError $ HDBC.run conn "UPDATE page SET (_id , content , title) = (?,?,?) WHERE (_id = ? )"
@@ -45,13 +63,19 @@ instance HasFindByPrimaryKey Page  (String)  where
 instance IsModel Page where
     insert m returnId = do
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
-        res  <- liftIO $ HDBC.handleSqlError $ HDBC.run conn " INSERT INTO page (_id,content,title) VALUES (?,?,?)"
-                  [HDBC.toSql $ _id m , HDBC.toSql $ content m , HDBC.toSql $ title m]
-        liftIO $ HDBC.handleSqlError $ HDBC.commit conn
-        if returnId
-          then do i <- liftIO $ HDBC.catchSql (HDBC.handleSqlError $ HDBC.quickQuery' conn "SELECT lastval()" []) (\_ -> HDBC.commit conn >> (return $ [[HDBC.toSql (0 :: Int)]]) ) 
-                  return $ HDBC.fromSql $ head $ head i
-          else return Nothing
+        res  <- liftIO $ HDBC.handleSqlError $ HDBC.run conn (" INSERT INTO page (_id,content,title) VALUES (?,?,?)")  ( [HDBC.toSql $ _id m] ++ [HDBC.toSql $ content m] ++ [HDBC.toSql $ title m])
+        case res of
+          0 -> (liftIO $ HDBC.handleSqlError $ HDBC.rollback conn) >>
+               (throwDyn $ HDBC.SqlError
+                           {HDBC.seState = "",
+                            HDBC.seNativeError = (-1),
+                            HDBC.seErrorMsg = "Rolling back.  No record inserted :page : " ++ (show m)
+                           })
+          1 -> liftIO $ HDBC.handleSqlError $ HDBC.commit conn >>
+               if returnId
+                 then do i <- liftIO $ HDBC.catchSql (HDBC.handleSqlError $ HDBC.quickQuery' conn "SELECT lastval()" []) (\_ -> HDBC.commit conn >> (return $ [[HDBC.toSql (0 :: Integer)]]) ) 
+                         return $ HDBC.fromSql $ head $ head i
+               else return Nothing
     findAll = do
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
         res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn "SELECT _id , content , title FROM page" []
@@ -62,11 +86,11 @@ instance IsModel Page where
         return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
     findAllOrderBy op = do
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
-        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page ORDER BY ?") [HDBC.toSql op]
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page ORDER BY " ++ op) []
         return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
     findAllWhereOrderBy ss sp op = do
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
-        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ORDER BY ? ")  (sp ++ [HDBC.toSql op])
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ORDER BY " ++ op) sp
         return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
     findOneWhere ss sp = do
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
@@ -74,9 +98,15 @@ instance IsModel Page where
         return $ (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) (head res)
     findOneOrderBy op = do
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
-        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page ORDER BY ? LIMIT 1")  [HDBC.toSql op]
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page ORDER BY " ++ op ++ " LIMIT 1")  []
         return $ (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) (head res)
     findOneWhereOrderBy ss sp op = do
         conn <- getEnvironment >>= (return . fromJust . getDatabase )
-        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ORDER BY ? LIMIT 1")  (sp ++ [HDBC.toSql op])
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ORDER BY " ++ op ++" LIMIT 1")  sp
         return $ (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) (head res)
+
+deleteWhere :: (HasEnvironment m) => SelectString -> SelectParams -> m Integer
+deleteWhere ss sp = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.run conn ("DELETE FROM page WHERE (" ++ ss ++ ") ")  sp
+        return res
