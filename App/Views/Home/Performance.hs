@@ -1,4 +1,4 @@
-page =      <div>
+markup =    <div>
               <h1>Performance</h1>
               <p>
                 Turbinado is written in Haskell, so has the speed of an application framework written in a compiled language. In order to test the relative performance, Turbinado is compared to Apache and Ruby On Rails.All tests were conducted with the following command against a 1.5GHz Pentium-M ThinkPad T40 running Debian Unstable.

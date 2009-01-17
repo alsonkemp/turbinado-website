@@ -6,14 +6,19 @@ h1 {
 
 h2 {
   font-weight: bold;
-  padding-top: 10px;
+  margin-top: 10px;
   text-decoration: underline;
 }
 
 p {
-  margin-bottom: 5px;
-  margin-top   : 5px;
+  margin-bottom: 10px;
+  margin-top   : 10px;
   font-size: 12px;
+  line-height: 1.4em;
+}
+
+em {
+  font-style: italic;
 }
 
 .wrapper {
@@ -76,7 +81,7 @@ div.content-block {
   margin-top: 10px;
 }
 
-ul.standard-list {
+ul {
   list-style-position:inside;
   list-style-type:disc;
   margin-left:15px;

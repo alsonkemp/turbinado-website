@@ -1,1 +1,1 @@
-page = return $ cdata $ "Hello World"
+markup = return $ cdata $ "Hello World"

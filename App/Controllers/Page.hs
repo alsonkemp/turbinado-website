@@ -1,58 +1,41 @@
 import App.Models.PageModel
+import qualified Network.URI as URI
 
 index :: Controller ()
-index  = do conn <- liftIO $ fromJust $ databaseConnection
-            pages <- liftIO $ findAll conn
+index  = do pages <- findAll
             setViewDataValue "pages-list" $ map (\p -> (title p, _id p)) pages
 
 show :: Controller ()
-show  = do conn <- liftIO $ fromJust $ databaseConnection
-           e    <- get
-           id'  <- getSetting "id"
-           case id' of
-             Nothing -> redirectTo "/Home"
-             Just i  -> do p <- find conn i
-                           setViewDataValue "page-title" (title p)
-                           setViewDataValue "page-content" (content p)
+show  = do id'  <- getSetting_u "id"
+           p <- find id'
+           setViewDataValue "page-title" (title p)
+           setViewDataValue "page-content" (content p)
 
 new :: Controller ()
-new  = do  conn <- liftIO $ fromJust $ databaseConnection
-           e    <- get
-           id'  <- getSetting "id"
-           case id' of
-             Nothing -> redirectTo "/Home"
-             Just i  -> do setViewDataValue "save-url" ("/Page/Create/" ++ i)
+new  = do  id'  <- getSetting_u "id"
+           setViewDataValue "save-url" ("/Page/Create/" ++ id')
 
 create :: Controller ()
-create = do conn <- liftIO $ fromJust $ databaseConnection
-            e    <- get
-            id'  <- getSetting "id"
+create = do id'  <- getSetting_u "id"
             _title   <- getParam_u "title"
             _content <- getParam_u "content"
-            case id' of
-              Nothing -> redirectTo "/Home"
-              Just i  -> do App.Models.PageModel.insert conn Page {_id = i, title = _title, content = _content}
-                            redirectTo $ "/Page/Show/" ++ i
+            App.Models.PageModel.insert Page {_id = id', title = _title, content = _content} False
+            redirectTo $ "/Page/Show/" ++ id'
+
 edit :: Controller ()
-edit  = do conn <- liftIO $ fromJust $ databaseConnection
-           e    <- get
-           id'  <- getSetting "id"
-           case id' of
-             Nothing -> redirectTo "/Home"
-             Just i  -> do p <- find conn i
-                           setViewDataValue "save-url" ("/Page/Save/" ++ i)
-                           setViewDataValue "page-title" (title p)
-                           setViewDataValue "page-content" (content p)
+edit  = do id'  <- getSetting_u "id"
+           p <- find id'
+           setViewDataValue "save-url" ("/Page/Save/" ++ id')
+           setViewDataValue "page-title" (title p)
+           setViewDataValue "page-content" (content p)
 
 save :: Controller ()
-save = do   conn <- liftIO $ fromJust $ databaseConnection
-            e    <- get
-            id'  <- getSetting "id"
+save = do   id'  <- getSetting_u "id"
             _title   <- getParam_u "title"
             _content <- getParam_u "content"
-            case id' of
-              Nothing -> redirectTo "/Home"
-              Just i  -> do p <- find conn i
-                            App.Models.PageModel.update conn p {title = _title, content = _content}
-                            redirectTo $ "/Page/Show/" ++ i
-    
+            p <- find id'
+            App.Models.PageModel.update p {title = _title, content = _content}
+            redirectTo $ "/Page/Show/" ++ id'
+
+                
+

@@ -1,9 +1,10 @@
-page =  <div>
+markup= <div>
           <h1>
             Page Index
           </h1>
-          <% (getViewDataValue_u "pages-list" :: View [(String, String)]) >>= 
-               \l ->  mapM indexItem l %>
+          <% do l <- getViewDataValue_u "pages-list" :: View [(String, String)]
+                mapM indexItem l 
+          %>
         </div>
 
 indexItem (t,i) = return $ cdata $ unlines $

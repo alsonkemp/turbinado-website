@@ -10,7 +10,11 @@ module App.Models.Bases.PageModelBase (
 
 import App.Models.Bases.ModelBase
 import qualified Database.HDBC as HDBC
+import Data.Maybe
 import System.Time
+
+import Turbinado.Environment.Types
+import Turbinado.Environment.Database
 
 data Page = Page {
     _id :: String,    content :: String,    title :: String
@@ -20,24 +24,47 @@ instance DatabaseModel Page where
     tableName _ = "page"
 
 instance IsModel Page where
-    insert conn m = do
-        res <- liftIO $ HDBC.run conn " INSERT INTO page (_id,content,title) VALUES (?,?,?)"
+    insert m returnId = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res  <- liftIO $ HDBC.handleSqlError $ HDBC.run conn " INSERT INTO page (_id,content,title) VALUES (?,?,?)"
                   [HDBC.toSql $ _id m , HDBC.toSql $ content m , HDBC.toSql $ title m]
-        liftIO $ HDBC.commit conn
-        i <- liftIO $ HDBC.catchSql (HDBC.quickQuery' conn "SELECT lastval()" []) (\_ -> HDBC.commit conn >> (return $ [[HDBC.toSql (0 :: Int)]]) ) 
-        return $ HDBC.fromSql $ head $ head i
-    findAll conn = do
-        res <- liftIO $ HDBC.quickQuery' conn "SELECT _id , content , title FROM page" []
+        liftIO $ HDBC.handleSqlError $ HDBC.commit conn
+        if returnId
+          then do i <- liftIO $ HDBC.catchSql (HDBC.handleSqlError $ HDBC.quickQuery' conn "SELECT lastval()" []) (\_ -> HDBC.commit conn >> (return $ [[HDBC.toSql (0 :: Int)]]) ) 
+                  return $ HDBC.fromSql $ head $ head i
+          else return Nothing
+    findAll = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn "SELECT _id , content , title FROM page" []
         return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
-    findAllBy conn ss sp = do
-        res <- liftIO $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ")  sp
+    findAllWhere ss sp = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ")  sp
         return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
-    findOneBy conn ss sp = do
-        res <- liftIO $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") LIMIT 1")  sp
+    findAllOrderBy op = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page ORDER BY ?") [HDBC.toSql op]
+        return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
+    findAllWhereOrderBy ss sp op = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ORDER BY  " ++ op)  sp 
+        return $ map (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) res
+    findOneWhere ss sp = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") LIMIT 1") sp
+        return $ (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) (head res)
+    findOneOrderBy op = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page ORDER BY ? LIMIT 1")  [HDBC.toSql op]
+        return $ (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) (head res)
+    findOneWhereOrderBy ss sp op = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (" ++ ss ++ ") ORDER BY ? LIMIT 1")  (sp ++ [HDBC.toSql op])
         return $ (\r -> Page (HDBC.fromSql (r !! 0)) (HDBC.fromSql (r !! 1)) (HDBC.fromSql (r !! 2))) (head res)
 instance HasFindByPrimaryKey Page  (String)  where
-    find conn pk@(pk1) = do
-        res <- liftIO $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (_id = ? )") [HDBC.toSql pk1]
+    find pk@(pk1) = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.quickQuery' conn ("SELECT _id , content , title FROM page WHERE (_id = ? )") [HDBC.toSql pk1]
         case res of
           [] -> throwDyn $ HDBC.SqlError
                            {HDBC.seState = "",
@@ -51,8 +78,9 @@ instance HasFindByPrimaryKey Page  (String)  where
                             HDBC.seErrorMsg = "Too many records found when finding by Primary Key:page : " ++ (show pk)
                            }
 
-    update conn m = do
-        res <- liftIO $ HDBC.run conn "UPDATE page SET (_id , content , title) = (?,?,?) WHERE (_id = ? )"
+    update m = do
+        conn <- getEnvironment >>= (return . fromJust . getDatabase )
+        res <- liftIO $ HDBC.handleSqlError $ HDBC.run conn "UPDATE page SET (_id , content , title) = (?,?,?) WHERE (_id = ? )"
                   [HDBC.toSql $ _id m , HDBC.toSql $ content m , HDBC.toSql $ title m, HDBC.toSql $ _id m]
-        liftIO $ HDBC.commit conn
+        liftIO $ HDBC.handleSqlError $ HDBC.commit conn
         return ()

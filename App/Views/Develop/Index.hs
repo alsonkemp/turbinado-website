@@ -1,4 +1,4 @@
-page     =  <div>
+markup   =  <div>
               <h2>! Windows</h2>
               <p>This software doesn't work on Windows.  Linux/Unix only at this point.</p>
               
@@ -18,3 +18,5 @@ page     =  <div>
                 <li>Copy a couple of tutorial apps from Rails/Django tutorials.</li>
               </ul>
             </div>
+
+
