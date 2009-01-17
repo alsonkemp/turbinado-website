@@ -1,5 +1,8 @@
-import App.Models.PageModel
 import qualified Network.URI as URI
+import System.Time
+
+import Turbinado.Controller
+import App.Models.Page
 
 index :: Controller ()
 index  = do pages <- findAll
@@ -19,7 +22,7 @@ create :: Controller ()
 create = do id'  <- getSetting_u "id"
             _title   <- getParam_u "title"
             _content <- getParam_u "content"
-            App.Models.PageModel.insert Page {_id = id', title = _title, content = _content} False
+            App.Models.Page.insert Page {_id = id', title = _title, content = _content} False
             redirectTo $ "/Page/Show/" ++ id'
 
 edit :: Controller ()
@@ -34,8 +37,11 @@ save = do   id'  <- getSetting_u "id"
             _title   <- getParam_u "title"
             _content <- getParam_u "content"
             p <- find id'
-            App.Models.PageModel.update p {title = _title, content = _content}
+            App.Models.Page.update p {title = _title, content = _content}
             redirectTo $ "/Page/Show/" ++ id'
 
-                
+--test :: Controller ()
+--test = do t <- liftIO getClockTime
+--          App.Models.Page.insert Page {_id = "asdf7", title = "title", content = "content", tester = Just 666, ts = Just t} False
+--          redirectTo $ "/Home/Index"
 
