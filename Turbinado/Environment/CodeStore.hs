@@ -156,6 +156,8 @@ _loadView ct cmap cl args fp = do
                                       case ct of
                                         CTLayout              -> return (insert cl (CodeLoadView f t) cmap)
                                         CTView                -> return (insert cl (CodeLoadView f t) cmap)
+                                        CTComponentView       -> return (insert cl (CodeLoadComponentView f m t) cmap)
+                                        _                     -> error $ "_loadView: passed an invalid CodeType (" ++ (show ct)
 
 -- | Attempt to load the code and return the 'CodeMap' with the newly loaded code in it.  This
 -- function is specialized for Controllers.

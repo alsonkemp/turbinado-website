@@ -12,7 +12,7 @@ Cabal-Version:          >= 1.6
 
 Executable turbinado
   Main-is:             Turbinado/Server.hs
-  Build-Depends:       base > 4, 
+  Build-Depends:       base >= 4, 
                        containers, 
                        directory, 
                        harp == 0.4,

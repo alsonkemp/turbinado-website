@@ -3,13 +3,13 @@
 
 module App.Models.Bases.Common(
   module App.Models.Bases.Common,
-  module Control.Exception,
+  module Control.OldException,
   module Control.Monad.Trans,
   module Data.Int
   ) where
 
 import Control.Monad.Trans
-import Control.Exception
+import Control.OldException
 import Database.HDBC
 import Data.Int
 

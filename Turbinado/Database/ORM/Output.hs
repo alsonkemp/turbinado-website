@@ -49,6 +49,7 @@ generateType t typeName pk ts cs =
   , ""
   , "import App.Models.Bases.Common"
   , "import Data.Maybe"
+  , "import Data.Typeable"
   , "import System.Time"
   , ""
   ] ++

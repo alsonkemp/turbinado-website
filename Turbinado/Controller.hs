@@ -10,8 +10,8 @@ module Turbinado.Controller (
         --quickQuery,
         --quickQuery',
         --run,
-        HDBC.SqlValue(..),
-        HDBC.SqlType(..),
+        -- HDBC.SqlValue(..),
+        -- HDBC.SqlType(..),
 
         module Data.Maybe,
 
