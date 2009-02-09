@@ -18,6 +18,8 @@ import System.FilePath
 import Turbinado.Environment.Logger
 import Turbinado.Environment.Types
 import Turbinado.Controller.Monad
+import Turbinado.Utility.Naming
+import qualified Config.Master as Config
 
 -- | Used during request initialization to add the 'Settings' 'Map'
 -- to the 'Environment'.
@@ -76,8 +78,11 @@ defaultSettings = [ ("layout", toDyn "Default") ]
 getController :: (HasEnvironment m) => m (FilePath, String)
 getController = do c <- getSetting_u "controller"
                    a <- getSetting_u "action"
-                   return $ (c,
-                             actionName a)
+                   let converter = if Config.useLowerCasePaths
+                                        then fromUnderscore
+                                        else id
+                   return $ (converter c,
+                             actionName $ converter a)
                                where actionName s = (toLower $ head s) : (tail s)
 
 -- | Tells the 'Controller' to use a particular 'Layout' for the 'View'.
@@ -92,5 +97,8 @@ clearLayout = unsetSetting "layout"
 getView :: (HasEnvironment m) => m (FilePath, String)
 getView = do c <- getSetting_u "controller"
              a <- getSetting_u "action"
-             return (joinPath $ map normalise [c,a], "markup")
+             let converter = if Config.useLowerCasePaths
+                                  then fromUnderscore
+                                  else id
+             return (joinPath $ map normalise [converter c, converter a], "markup")
 

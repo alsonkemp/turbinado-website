@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Turbinado.Server.Handlers.RequestHandler
+-- Module      :  Turbinado.Server.RequestProcess
 -- Copyright   :  (c) Alson Kemp 2008, Niklas Broberg 2004,
 -- License     :  BSD-style (see the file LICENSE)
 -- 
@@ -12,8 +12,8 @@
 -- a response.
 --
 -----------------------------------------------------------------------------
-module Turbinado.Server.Handlers.RequestHandler (
-    requestHandler
+module Turbinado.Server.RequestProcess (
+    processRequest
     ) where
 
 import qualified Network.HTTP as HTTP
@@ -58,8 +58,8 @@ postFilters = []
 
 -- | The main request handler.  This runs standard and custom preFilters
 -- then runs the Controller and View.
-requestHandler :: Controller ()
-requestHandler = do
+processRequest :: Controller ()
+processRequest = do
           debugM $ " requestHandler : running pre and main filters"
           -- Run the Pre filters, the page
           sequence_ $ preFilters ++

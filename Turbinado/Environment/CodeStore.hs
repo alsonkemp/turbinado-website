@@ -9,6 +9,8 @@ import Control.Monad ( when, foldM)
 import Data.Map hiding (map)
 import Data.List (isPrefixOf, intersperse)
 import Data.Maybe
+import Data.Time
+import Data.Time.Clock.POSIX
 import Data.Typeable
 import qualified Network.HTTP as HTTP
 import Prelude hiding (lookup,catch)
@@ -43,8 +45,7 @@ retrieveCode ct cl' = do
     e <- getEnvironment
     let (CodeStore mv) = fromJust $ getCodeStore e
         path  = getDir ct
-    cl <- do -- d <- getCurrentDirectory 
-          return (addExtension (joinPath $ map normalise [path, dropExtension $ fst cl']) "hs", snd cl')
+    cl <- return (addExtension (joinPath $ map normalise [path, dropExtension $ fst cl']) "hs", snd cl')
     debugM $ "  CodeStore : retrieveCode : loading   " ++ (fst cl) ++ " - " ++ (snd cl)
     cmap <- liftIO $ takeMVar mv
     let c= lookup cl cmap
@@ -92,8 +93,8 @@ checkReloadCode ct cmap cstat cl = do
         needReloadCode fp fd = do
             fe <- liftIO $ doesFileExist fp
             case fe of
-                True -> do mt <- liftIO $ getModificationTime fp    
-                           return $ (True, mt > fd)
+                True -> do TOD mt _ <- liftIO $ getModificationTime fp    
+                           return $ (True, fromIntegral mt > utcTimeToPOSIXSeconds fd)
                 False-> return (False, True)
 
         
@@ -152,7 +153,7 @@ _loadView ct cmap cl args fp = do
                                       return (insert cl (CodeLoadFailure $ unlines err) cmap)
                 LoadSuccess m f -> do debugM ("LoadSuccess : " ++ fst cl )
                                       liftIO $ unload m
-                                      t <- liftIO $ getClockTime
+                                      t <- liftIO $ getCurrentTime
                                       case ct of
                                         CTLayout              -> return (insert cl (CodeLoadView f t) cmap)
                                         CTView                -> return (insert cl (CodeLoadView f t) cmap)
@@ -170,7 +171,7 @@ _loadController ct cmap cl args fp = do
                                   return (insert cl (CodeLoadFailure $ unlines err) cmap)
             LoadSuccess m f -> do debugM ("LoadSuccess : " ++ fst cl )
                                   liftIO $ unload m
-                                  t <- liftIO $ getClockTime
+                                  t <- liftIO $ getCurrentTime
                                   case ct of
                                     CTController          -> return (insert cl (CodeLoadController f t) cmap)
                                     CTComponentController -> return (insert cl (CodeLoadComponentController f t) cmap)

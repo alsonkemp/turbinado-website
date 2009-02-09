@@ -22,6 +22,7 @@ module Turbinado.Controller (
 
         module Config.Master,
         module Turbinado.Environment.CodeStore,
+        module Turbinado.Environment.Cookie,
         module Turbinado.Environment.Header,
         module Turbinado.Environment.Logger,
         module Turbinado.Environment.Params,
@@ -43,6 +44,7 @@ import qualified Database.HDBC as HDBC
 
 import Config.Master
 import Turbinado.Environment.CodeStore
+import Turbinado.Environment.Cookie
 import Turbinado.Environment.Database
 import Turbinado.Environment.Header
 import Turbinado.Environment.Logger

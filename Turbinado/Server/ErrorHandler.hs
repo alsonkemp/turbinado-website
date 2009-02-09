@@ -1,4 +1,4 @@
-module Turbinado.Server.Handlers.ErrorHandler where
+module Turbinado.Server.ErrorHandler where
 
 import System.IO
 import Prelude hiding (catch)

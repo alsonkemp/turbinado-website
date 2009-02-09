@@ -1,8 +1,7 @@
 module Config.App (
   applicationPath,
   applicationHost,
-  AppEnvironment (..),
-  newAppEnvironment,
+  useLowerCasePaths,
   databaseConnection,
   Connection,
   customSetupFilters,
@@ -16,28 +15,44 @@ import System.Log.Logger
 -- Your favorite HDBC driver
 import Database.HDBC.PostgreSQL
 
+import Turbinado.Controller.Monad
+import Turbinado.Environment.Types
+import Turbinado.Environment.Session.CookieSession
+
 ----------------------------------------------------------------
 -- Environment settings
 ----------------------------------------------------------------
 applicationPath = ""
 applicationHost = "localhost:8080"
 
-data AppEnvironment = AppEnvironment
-newAppEnvironment = AppEnvironment
+-- | Determines whether the server uses URLs of the form FooBar/BimBam or foo_bar/bim_bam.
+-- The Controllers and Views must still be named FooBar.hs and BimBam.hs.
+useLowerCasePaths = True
 
 ----------------------------------------------------------------
 -- Database connection
 ----------------------------------------------------------------
-databaseConnection :: Maybe (IO Connection)
+-- databaseConnection :: Maybe (IO Connection)
 -- databaseConnection = Nothing
 databaseConnection = Just $ connectPostgreSQL "host=localhost dbname=turbinado user=turbinado password=turbinado"
 
 ----------------------------------------------------------------
+-- Session stuff
+----------------------------------------------------------------
+sessionOpts = [ ("cookie-name", "turb-sess")
+              , ("cipher-key",  "super secret phrase")
+              ]
+
+----------------------------------------------------------------
 -- RequestHandler Filter List additions
 ----------------------------------------------------------------
+
+customSetupFilters :: [Controller ()]
 customSetupFilters  = []
-customPreFilters  = []
-customPostFilters = []
+customPreFilters   :: [Controller ()]
+customPreFilters    = [retrieveSession sessionOpts]
+customPostFilters  :: [Controller ()]
+customPostFilters   = [persistSession  sessionOpts]
 
 
 ----------------------------------------------------------------

@@ -33,11 +33,11 @@ import Turbinado.Environment.Types
 import Turbinado.Environment.ViewData
 import Turbinado.Environment.CodeStore (addCodeStoreToEnvironment)
 import Turbinado.Server.Exception
-import Turbinado.Server.Handlers.ErrorHandler (handleError, handleTurbinado)
-import Turbinado.Server.Handlers.RequestHandler (requestHandler)
+import Turbinado.Server.ErrorHandler (handleError, handleTurbinado)
+import Turbinado.Server.RequestProcess (processRequest)
 import Turbinado.Server.Handlers.SessionHandler
 import Turbinado.Server.Network (receiveRequest, sendResponse)
-import Turbinado.Server.StandardResponse (pageResponse)
+import Turbinado.Server.StandardResponse (addEmptyResponse, pageResponse)
 import Turbinado.Server.StaticContent
 
 data Flag 
@@ -107,23 +107,24 @@ workerLoop workerPoolMVar e chan
     where
       mainLoop
           = do sock      <- readChan chan
-               handleRequest sock e
+               workerProcessRequest sock e
                putWorkerThread workerPoolMVar chan
                mainLoop
 
 -- | Basic request handling: setup the 'Environment' for this request,
 -- run the real requestHandler, then ship the response back to the client.
-handleRequest :: Socket -> Environment -> IO ()
-handleRequest sock e
+workerProcessRequest :: Socket -> Environment -> IO ()
+workerProcessRequest sock e
     = (do mytid <- myThreadId
-          e' <- runController (sequence_ [ addViewDataToEnvironment
+          e' <- runController (sequence_ [ addEmptyResponse
+                                         , addViewDataToEnvironment
                                          , addSettingsToEnvironment
                                          , receiveRequest sock
                                          , tryStaticContent 
                                          ]) e
           case (isResponseComplete e') of
             True  -> sendResponse sock e'
-            False -> do e'' <- runController requestHandler e'
+            False -> do e'' <- runController processRequest e'
                         sendResponse sock e''
       ) 
         `catchTurbinado` (\ex -> handleTurbinado sock ex e)
