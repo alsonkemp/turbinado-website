@@ -74,32 +74,35 @@ instance (HasEnvironment m) => HasSession m where
                                                                                      then _setSession s
                                                                                      else newSession opts
                                                                 else newSession opts
-  persistSession opts  = do s <- _getSession
-                            let c = maybe
-                                     (error "'cipher-key' didn't exist in options passed to persistSession")
-                                     id
-                                     (lookup "cipher-key" opts)
-                                ex = maybe
-                                      Nothing
-                                      maybeReadUTC
-                                      (lookup "session-expires" opts)
-                                message = stringToW8 $ show s
-                                cipheredMessage = Base64.encode $ blocksToW8 $ cbc AES.encrypt 0 (w8ToKey $ MD5.hash $ stringToW8 c) (w8ToBlocks message)
-                                hashCode = Base64.encode $ MD5.hash message
-                            setCookie 
-                              (Cookie {cookieName = fromJust $ sessionName s
-                                      ,cookieValue = (show $ (cipheredMessage, hashCode))
-                                      ,cookieExpires = ex
-                                      ,cookieDomain = Nothing
-                                      ,cookiePath = Nothing
-                                      }
-                              )
+  persistSession opts  = do e <- getEnvironment
+                            let s' = getSession e
+                            case s' of
+                              Nothing -> return ()
+                              Just s -> do let c = maybe
+                                                    (error "'cipher-key' didn't exist in options passed to persistSession")
+                                                    id
+                                                    (lookup "cipher-key" opts)
+                                               ex = maybe
+                                                      Nothing
+                                                      maybeReadUTC
+                                                      (lookup "session-expires" opts)
+                                               message = stringToW8 $ show s
+                                               cipheredMessage = Base64.encode $ blocksToW8 $ cbc AES.encrypt 0 (w8ToKey $ MD5.hash $ stringToW8 c) (w8ToBlocks message)
+                                               hashCode = Base64.encode $ MD5.hash message
+                                           setCookie 
+                                             (Cookie {cookieName = fromJust $ sessionName s
+                                                     ,cookieValue = (show $ (cipheredMessage, hashCode))
+                                                     ,cookieExpires = ex
+                                                     ,cookieDomain = Nothing
+                                                     ,cookiePath = Nothing
+                                                     }
+                                             )
   abandonSession = do e <- getEnvironment
                       let s = getSession e
+                      setEnvironment $ e {getSession = Nothing}
                       case s of
                         Nothing -> return ()
                         Just s' -> deleteCookie (fromJust $ sessionName s')
-                      setEnvironment $ e {getSession = Nothing}
   getSessionValue k = do s <- _getSession
                          return $ M.lookup k $ dataRep s
   setSessionValue k v = do s <- _getSession

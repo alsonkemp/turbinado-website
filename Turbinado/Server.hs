@@ -35,7 +35,6 @@ import Turbinado.Environment.CodeStore (addCodeStoreToEnvironment)
 import Turbinado.Server.Exception
 import Turbinado.Server.ErrorHandler (handleError, handleTurbinado)
 import Turbinado.Server.RequestProcess (processRequest)
-import Turbinado.Server.Handlers.SessionHandler
 import Turbinado.Server.Network (receiveRequest, sendResponse)
 import Turbinado.Server.StandardResponse (addEmptyResponse, pageResponse)
 import Turbinado.Server.StaticContent

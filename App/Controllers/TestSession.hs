@@ -20,3 +20,8 @@ deleteCounter :: Controller ()
 deleteCounter = do clearLayout
                    deleteSessionKey "counter"
                    setViewDataValue "show-me" "deleted"
+
+abandonCounter :: Controller ()
+abandonCounter = do clearLayout
+                    abandonSession
+                    setViewDataValue "show-me" "abandoned"

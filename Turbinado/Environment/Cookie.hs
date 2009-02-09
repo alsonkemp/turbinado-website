@@ -21,7 +21,6 @@ module Turbinado.Environment.Cookie
   , getCookie
   , setCookie
   , deleteCookie
-  , readCookies
   , showCookie
   ) where
 
@@ -56,6 +55,7 @@ getCookie name   = do e <- getEnvironment
 -- * Setting Cookies
 --
 
+-- | Set a cookie (which you should have created using something like 'mkCookie'
 setCookie :: HasEnvironment m =>
              Cookie ->
              m ()
@@ -85,7 +85,7 @@ deleteCookie :: HasEnvironment m =>
 deleteCookie c = setCookie $ c' { cookieExpires = Just epoch }
    where
     c' = mkCookie c ""
-    epoch = UTCTime (ModifiedJulianDay 0) (secondsToDiffTime 0)
+    epoch = UTCTime (ModifiedJulianDay 100) (secondsToDiffTime 0)
 --
 -- * Showing cookies
 --
@@ -98,7 +98,7 @@ showCookie c = intercalate "; " $
     where expires = fmap (showPair "expires" . dateFmt) (cookieExpires c)
           domain = fmap (showPair "domain") (cookieDomain c)
           path = fmap (showPair "path") (maybe (Just "/") Just (cookiePath c))
-          dateFmt = formatTime defaultTimeLocale rfc822DateFormat
+          dateFmt = formatTime defaultTimeLocale "%a, %d-%b-%Y %H:%M:%S GMT"
 
 --
 -- * Reading cookies
