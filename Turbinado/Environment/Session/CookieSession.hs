@@ -29,6 +29,7 @@ import Codec.Utils
 import qualified Network.HTTP.Headers as Headers
 import Turbinado.Environment.Cookie
 import Turbinado.Environment.Types
+import Turbinado.Utility.Data
 
 type Key = String
 type Value = String
@@ -62,8 +63,8 @@ instance (HasEnvironment m) => HasSession m where
                               Just m'' -> let message' = maybeRead m'' in
                                           case message' of
                                             Nothing     -> newSession opts
-                                            Just (m, h) -> do let messageBlocks = unCbc AES.decrypt 0 (w8ToKey $ MD5.hash $ stringToW8 c) (w8ToBlocks $ fromJust $ Base64.decode m)
-                                                                  hashCode = fromJust $ Base64.decode h
+                                            Just (m, h) -> do let messageBlocks = unCbc AES.decrypt 0 (w8ToKey $ MD5.hash $ stringToW8 c) (w8ToBlocks $ fromJust' "CookieSession : retrieveSession" $ Base64.decode m)
+                                                                  hashCode = fromJust' "CookieSession : retreiveSession(2)" $ Base64.decode h
                                                                   hashCheck = MD5.hash $ blocksToW8 messageBlocks
                                                               if (hashCode == hashCheck)
                                                                 then let s = read (w8ToString $ blocksToW8 messageBlocks) in
@@ -90,7 +91,7 @@ instance (HasEnvironment m) => HasSession m where
                                                cipheredMessage = Base64.encode $ blocksToW8 $ cbc AES.encrypt 0 (w8ToKey $ MD5.hash $ stringToW8 c) (w8ToBlocks message)
                                                hashCode = Base64.encode $ MD5.hash message
                                            setCookie 
-                                             (Cookie {cookieName = fromJust $ sessionName s
+                                             (Cookie {cookieName = fromJust' "CookieSession : persistSession" $ sessionName s
                                                      ,cookieValue = (show $ (cipheredMessage, hashCode))
                                                      ,cookieExpires = ex
                                                      ,cookieDomain = Nothing
@@ -102,7 +103,7 @@ instance (HasEnvironment m) => HasSession m where
                       setEnvironment $ e {getSession = Nothing}
                       case s of
                         Nothing -> return ()
-                        Just s' -> deleteCookie (fromJust $ sessionName s')
+                        Just s' -> deleteCookie (fromJust' "CookieSession : abandonSession" $ sessionName s')
   getSessionValue k = do s <- _getSession
                          return $ M.lookup k $ dataRep s
   setSessionValue k v = do s <- _getSession
@@ -152,7 +153,7 @@ maybeReadUTC :: String -> Maybe UTCTime
 maybeReadUTC = listToMaybe . map fst . filter (null . snd) . reads
 
 _getSession   :: (HasEnvironment m) => m Session
-_getSession   = getEnvironment >>= (return . fromJust . getSession)
+_getSession   = getEnvironment >>= (return . fromJust' "CookieSession : _getSession" . getSession)
 
 _setSession   :: (HasEnvironment m) => Session -> m ()
 _setSession s = getEnvironment >>= (\e -> setEnvironment $ e {getSession = Just s})

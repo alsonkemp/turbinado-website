@@ -28,6 +28,7 @@ import Turbinado.Environment.Logger
 import Turbinado.Environment.Types
 import Turbinado.Environment.Request
 import Turbinado.Environment.Response
+import Turbinado.Utility.Data
 import Turbinado.View.Monad hiding (liftIO)
 import Turbinado.View.XML
 import Turbinado.Controller.Monad
@@ -43,7 +44,7 @@ addCodeStoreToEnvironment = do e <- getEnvironment
 retrieveCode :: (HasEnvironment m) => CodeType -> CodeLocation -> m CodeStatus
 retrieveCode ct cl' = do
     e <- getEnvironment
-    let (CodeStore mv) = fromJust $ getCodeStore e
+    let (CodeStore mv) = fromJust' "CodeStore: retrieveCode" $ getCodeStore e
         path  = getDir ct
     cl <- return (addExtension (joinPath $ map normalise [path, dropExtension $ fst cl']) "hs", snd cl')
     debugM $ "  CodeStore : retrieveCode : loading   " ++ (fst cl) ++ " - " ++ (snd cl)
@@ -55,7 +56,7 @@ retrieveCode ct cl' = do
                Just (CodeLoadFailure _) -> do debugM ((fst cl) ++ " : " ++ (snd cl) ++ " : previous failure; try load") 
                                               loadCode ct cmap cl
                _                        -> do debugM ((fst cl) ++ " : " ++ (snd cl) ++ " : checking reload") 
-                                              checkReloadCode ct cmap (fromJust c) cl
+                                              checkReloadCode ct cmap (fromJust' "CodeStore: retrieveCode2" c) cl
     liftIO $ putMVar mv cmap'
     -- We _definitely_ have a code entry now, though it may have a MakeFailure
     let c' = lookup cl cmap'

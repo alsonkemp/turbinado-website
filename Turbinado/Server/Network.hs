@@ -12,6 +12,7 @@ import Turbinado.Environment.Logger
 import Turbinado.Environment.Types
 import Turbinado.Environment.Request
 import Turbinado.Environment.Response
+import Turbinado.Utility.Data
 
 import Network.HTTP
 
@@ -28,4 +29,4 @@ receiveRequest sock = do
 -- | Get the 'Response' from the 'Environment' and send
 -- it back to the client.
 sendResponse :: Socket -> Environment -> IO ()
-sendResponse sock e = respondHTTP sock $ fromJust $ getResponse e
+sendResponse sock e = respondHTTP sock $ fromJust' "Network : sendResponse" $ getResponse e

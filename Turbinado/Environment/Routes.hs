@@ -17,6 +17,7 @@ import Turbinado.Environment.Logger
 import Turbinado.Environment.Request
 import Turbinado.Environment.Settings
 import qualified Turbinado.Environment.Settings as S
+import Turbinado.Utility.Data
 
 import qualified Config.Routes
 
@@ -32,8 +33,8 @@ addRoutesToEnvironment = do e <- getEnvironment
 runRoutes :: (HasEnvironment m) => m ()
 runRoutes   = do debugM $ "  Routes.runRoutes : starting"
                  e <- getEnvironment
-                 let Routes rs = fromJust $ getRoutes e
-                     r         = fromJust $ getRequest e
+                 let Routes rs = fromJust' "Routes : runRoutes : getRoutes" $ getRoutes e
+                     r         = fromJust' "Routes : runRoutes : getRequest" $ getRequest e
                      p    = URI.uriPath $ HTTP.rqURI r
                      sets = msum $ map (\(r, k) -> maybe [] (zip k) (matchRegex r p)) rs
                  case sets of
@@ -43,7 +44,7 @@ runRoutes   = do debugM $ "  Routes.runRoutes : starting"
 
 addDefaultAction :: (HasEnvironment m) => m ()
 addDefaultAction   = do e <- getEnvironment
-                        let s = fromJust $ getSettings e
+                        let s = fromJust' "Routes : addDefaultAction : getSettings" $ getSettings e
                         setEnvironment $ e {getSettings = Just (M.insertWith (\ a b -> b) "action" (toDyn "Index") s)}
 
 ------------------------------------------------------------------------------

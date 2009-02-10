@@ -26,7 +26,7 @@ module Turbinado.Environment.Cookie
 
 import Data.Char (isSpace)
 import Data.List (intercalate)
-import Data.Maybe (catMaybes, fromJust)
+import Data.Maybe (catMaybes)
 import System.Locale (defaultTimeLocale, rfc822DateFormat)
 import Data.Time
 import Network.HTTP.Headers
@@ -34,7 +34,7 @@ import Network.HTTP.Headers
 import Turbinado.Environment.Header
 import Turbinado.Environment.Response
 import Turbinado.Environment.Types
-
+import Turbinado.Utility.Data (fromJust')
 --
 -- * Getting cookies
 --
@@ -60,7 +60,7 @@ setCookie :: HasEnvironment m =>
              Cookie ->
              m ()
 setCookie c = do e <- getEnvironment
-                 let r = fromJust $ getResponse e
+                 let r = fromJust' "setCookie" $ getResponse e
                  setResponse $ insertHeaders [Header HdrSetCookie $ showCookie c] r
 
 -- | Construct a cookie with only name and value set.
