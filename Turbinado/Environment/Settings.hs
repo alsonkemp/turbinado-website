@@ -60,7 +60,6 @@ getSetting_u s = do v <- getSetting s
 -- 'show' to convert to a String). 
 setSetting :: (HasEnvironment m, Typeable a) => String -> a -> m ()
 setSetting k v = do e <- getEnvironment
-                    debugM $ "  setSetting :   " ++ k
                     setEnvironment $ e { getSettings = Just (M.insert k (toDyn v) (fromJust' "Settings : setSetting" $ getSettings e))}
 
 -- | Unsets a setting.  If the key does not exist, no error is thrown.

@@ -36,7 +36,7 @@ runRoutes   = do debugM $ "  Routes.runRoutes : starting"
                  let Routes rs = fromJust' "Routes : runRoutes : getRoutes" $ getRoutes e
                      r         = fromJust' "Routes : runRoutes : getRequest" $ getRequest e
                      p    = URI.uriPath $ HTTP.rqURI r
-                     sets = msum $ map (\(r, k) -> maybe [] (zip k) (matchRegex r p)) rs
+                     sets = head $ filter (not . null) $ map (\(r, k) -> maybe [] (zip k) (matchRegex r p)) rs
                  case sets of
                   [] -> throwController $ ParameterLookupFailed $ "No routes matched for " ++ p
                   _  -> do mapM (\(k, v) -> setSetting k v) sets

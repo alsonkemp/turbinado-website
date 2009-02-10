@@ -9,12 +9,5 @@ show  = do id'  <- getSetting_u "id"
            p <- find id'
            setViewDataValue "page-title" (title p)
            setViewDataValue "page-content" (content p)
-           handleFormat
+           respondTo "format" []
 
-handleFormat :: Controller ()
-handleFormat = do f <- getSetting "format"
-                  case f of
-                    Nothing -> return ()
-                    Just f' -> do clearLayout
-                                  a <- getSetting_u "action"
-                                  setSetting "action" $ a ++ f'

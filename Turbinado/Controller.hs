@@ -21,6 +21,7 @@ module Turbinado.Controller (
         module Data.Maybe,
 
         module Config.Master,
+        module Turbinado.Controller.Routes,
         module Turbinado.Environment.CodeStore,
         module Turbinado.Environment.Cookie,
         module Turbinado.Environment.Header,
@@ -55,6 +56,7 @@ import Turbinado.Environment.Settings
 import Turbinado.Environment.Types
 import Turbinado.Environment.ViewData
 import Turbinado.Controller.Monad
+import Turbinado.Controller.Routes
 import Turbinado.Utility.General
 import Turbinado.Server.StandardResponse
 
