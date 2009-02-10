@@ -12,8 +12,6 @@ import Turbinado.Server.Exception
 import Turbinado.Server.Network
 import Turbinado.Server.StandardResponse
 
---import Turbinado.PrintDebug
-
 handleError :: Socket -> Exception -> Environment -> IO ()
 handleError s ex e = do e' <- runController (errorResponse err) e
                         sendResponse s e' 

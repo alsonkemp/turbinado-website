@@ -11,7 +11,6 @@ import System.FilePath
 
 import Turbinado.View
 
-
 breadCrumbs :: View XML
 breadCrumbs = do e <- getEnvironment
                  let r  = fromJust $ getRequest e
