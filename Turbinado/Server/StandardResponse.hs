@@ -56,10 +56,15 @@ pageResponse :: (HasEnvironment m) => [Header] -> String -> m ()
 pageResponse hds body =
      do t <- liftIO $ getClockTime
         r <- getEnvironment >>= (return . fromJust' "StandardResponse : pageResponse" . getResponse)
-        setResponse (Response (2,0,0) 
-                              "OK" 
-                              ((rspHeaders r) ++ [Header HdrContentLength $ show $ length body] ++ hds) 
-                              (body))
+        setResponse $ foldl
+                        (\rs (Header hn s) -> replaceHeader hn s rs)
+                        (Response 
+                          (2,0,0) 
+                          "OK"
+                          (rspHeaders r ++ [Header HdrContentLength $ show $ length body])
+                          body
+                        )
+                        hds
 
 redirectResponse :: (HasEnvironment m) => String -> m ()
 redirectResponse l =

@@ -2,7 +2,6 @@ module Config.App (
   applicationPath,
   applicationHost,
   useLowerCasePaths,
-  databaseConnection,
   Connection,
   customSetupFilters,
   customPreFilters,
@@ -28,13 +27,6 @@ applicationHost = "localhost:8080"
 -- | Determines whether the server uses URLs of the form FooBar/BimBam or foo_bar/bim_bam.
 -- The Controllers and Views must still be named FooBar.hs and BimBam.hs.
 useLowerCasePaths = True
-
-----------------------------------------------------------------
--- Database connection
-----------------------------------------------------------------
--- databaseConnection :: Maybe (IO Connection)
--- databaseConnection = Nothing
-databaseConnection = Just $ connectPostgreSQL "host=localhost dbname=turbinado user=turbinado password=turbinado"
 
 ----------------------------------------------------------------
 -- Session stuff

@@ -4,25 +4,19 @@
    All changes should go into the Model file (e.g. App/Models/ExampleModel.hs)
 -}
 
-module App.Models.Bases.PageRelations where
+module App.Models.Bases.TmpType where
 
 import App.Models.Bases.Common
-import qualified Database.HDBC as HDBC
 import Data.Maybe
 import Data.Time
+import Data.Typeable
 
- -- Model imports
-import App.Models.Bases.PageType
+-- The data type for this model
+data Tmp = Tmp {
+    ts :: Maybe UTCTime,
+    ts2 :: Maybe ZonedTime
+    } deriving (Show, Typeable)
 
-
-
-import Turbinado.Environment.Types
-import Turbinado.Environment.Database
-
-
-
-
-
-
-
+instance DatabaseModel Tmp where
+    tableName _ = "tmp"
 

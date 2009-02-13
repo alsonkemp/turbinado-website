@@ -9,7 +9,7 @@ module App.Models.Bases.PageFunctions where
 import App.Models.Bases.Common
 import qualified Database.HDBC as HDBC
 import Data.Maybe
-import System.Time
+import Data.Time
 
  -- My type
 import App.Models.Bases.PageType

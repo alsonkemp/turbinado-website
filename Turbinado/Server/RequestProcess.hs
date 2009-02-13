@@ -27,6 +27,7 @@ import Data.List
 import Data.Dynamic
 
 import Config.Master
+import Turbinado.Controller.Routes
 import Turbinado.Environment.Types
 import Turbinado.Environment.CodeStore
 import Turbinado.Environment.Logger
@@ -65,6 +66,7 @@ processRequest = do
           sequence_ $ preFilters ++
                       customPreFilters ++
                       [ retrieveAndRunController
+                      , checkFormats
                       , retrieveAndRunLayout
                       ] 
           debugM $ " requestHandler : running post filters"

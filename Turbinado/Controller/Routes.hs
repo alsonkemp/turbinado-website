@@ -8,22 +8,35 @@
 -- Stability   :  experimental
 -----------------------------------------------------------------------------
 module Turbinado.Controller.Routes (
-	respondTo
+  checkFormats
   ) where
 
 import Data.Maybe
+import Network.HTTP.Headers
+
+import Turbinado.Environment.MimeTypes
+import Turbinado.Environment.Request
+import Turbinado.Environment.Response
 import Turbinado.Environment.Settings
+import Turbinado.Environment.Types
 import Turbinado.Controller.Monad
 
 -- | Automates the process of responding to various file formats
-respondTo :: String -> [(String,  Controller ())] -> Controller ()
-respondTo f'' actions = do f' <- getSetting f''
-                           case f' of
-                             Nothing -> error $ "Routes.respondTo: There is no setting called '" ++ f'' ++ "' for me to respondTo"
-                             Just f  -> do let a' = lookup f actions
-                                           clearLayout
-                                           oldAction <- getSetting_u "action"
-                                           setSetting "action" (oldAction ++ f)
-                                           case a' of
-                                             Nothing -> return ()
-                                             Just a  -> do a 
+checkFormats:: Controller ()
+checkFormats = do f' <- getSetting "format"
+                  case f' of
+                    Nothing -> return ()
+                    Just f  -> do clearLayout
+                                  oldAction <- getSetting_u "action"
+                                  setSetting "action" (oldAction ++ f)
+                                  e <- getEnvironment
+                                  let mts = fromJust $ getMimeTypes e
+                                      mt  = mimeTypeOf mts f
+                                      rsp = fromJust $ getResponse e
+                                  case mt of 
+                                    Nothing  -> return ()
+                                    Just (MimeType s1 s2) -> setResponse $
+                                                              replaceHeader
+                                                                HdrContentType 
+                                                                (s1 ++ "/" ++ s2)
+                                                                rsp

@@ -8,15 +8,15 @@ module App.Models.Bases.PageType where
 
 import App.Models.Bases.Common
 import Data.Maybe
+import Data.Time
 import Data.Typeable
-import System.Time
 
 -- The data type for this model
 data Page = Page {
     _id :: String,
     content :: String,
     title :: String
-    } deriving (Eq, Show, Typeable)
+    } deriving (Show, Typeable)
 
 instance DatabaseModel Page where
     tableName _ = "page"

@@ -4,7 +4,7 @@
    All changes should go into the Model file (e.g. App/Models/ExampleModel.hs)
 -}
 
-module App.Models.Bases.PageRelations where
+module App.Models.Bases.TmpRelations where
 
 import App.Models.Bases.Common
 import qualified Database.HDBC as HDBC
@@ -12,13 +12,12 @@ import Data.Maybe
 import Data.Time
 
  -- Model imports
-import App.Models.Bases.PageType
+import App.Models.Bases.TmpType
 
 
 
 import Turbinado.Environment.Types
 import Turbinado.Environment.Database
-
 
 
 
