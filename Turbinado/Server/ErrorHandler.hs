@@ -12,14 +12,14 @@ import Turbinado.Server.Exception
 import Turbinado.Server.Network
 import Turbinado.Server.StandardResponse
 
-handleError :: Socket -> Exception -> Environment -> IO ()
+handleError :: (Maybe Socket) -> Exception -> Environment -> IO ()
 handleError s ex e = do e' <- runController (errorResponse err) e
                         sendResponse s e' 
                where err = unlines [ "Error in server: " ++ show ex
                                    ," please report as a bug to alson@alsonkemp.com"]
 
 
-handleTurbinado :: Socket -> TurbinadoException -> Environment -> IO ()
+handleTurbinado :: (Maybe Socket) -> TurbinadoException -> Environment -> IO ()
 handleTurbinado s he e = do
     e' <- runController (case he of
                            CompilationFailed errs    -> errorResponse err

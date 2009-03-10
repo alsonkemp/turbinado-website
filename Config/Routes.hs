@@ -5,4 +5,5 @@ routes = [ "/:controller/:action/:id.:format"
          , "/:controller/:action.:format"
          , "/:controller/:action"
          , "/:controller"
+         , "/home"
          ]

@@ -1,5 +1,5 @@
 Name:                turbinado
-Version:             0.5.4
+Version:             0.5.5
 Synopsis:            Haskell web application server
 Description:         The Haskell web application server
 License:             BSD3
@@ -14,7 +14,7 @@ Executable turbinado
   Main-is:             Turbinado/Server.hs
   Build-Depends:       base >= 4, 
                        containers, 
-                       Crypto, 
+                       Crypto > 4.1.0, 
                        dataenc,
                        directory, 
                        harp == 0.4,

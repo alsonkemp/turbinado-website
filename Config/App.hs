@@ -50,6 +50,6 @@ customPostFilters   = [persistSession  sessionOpts]
 ----------------------------------------------------------------
 -- Logging
 ----------------------------------------------------------------
-logLevel = DEBUG -- DEBUG < INFO < NOTICE < WARNING < ERROR < CRITICAL < ALERT < EMERGENCY 
+logLevel = ERROR -- DEBUG < INFO < NOTICE < WARNING < ERROR < CRITICAL < ALERT < EMERGENCY 
 
 
