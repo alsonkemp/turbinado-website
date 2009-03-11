@@ -199,9 +199,13 @@ customMergeToDir stb src dir = do
                 MergeFailure ["Source file does not exist : "++stb]
         _          -> do
                 src_str <- liftIO $ readFile src
-                stb_str <- liftIO $ readFile stb
-                let (stbimps, stbdecls) = span ( not . isPrefixOf "-- SPLIT HERE") $ lines stb_str
-                    mrg_str = outTitle ++ (unlines stbimps) ++ src_str ++ (unlines stbdecls)
+                stb_str  <- liftIO $ readFile stb
+                -- Check to see whether the file start with "module ".  If so, the user
+                -- should already have added the require preamble.  Otherwise, merge the stub.
+                let mrg_str = case src_str of
+                                ('m':'o':'d':'u':'l':'e':' ':_) -> src_str
+                                _ -> let (stbimps, stbdecls) = span ( not . isPrefixOf "-- SPLIT HERE") $ lines stb_str
+                                     in outTitle ++ (unlines stbimps) ++ src_str ++ (unlines stbdecls)
                 liftIO $ createDirectoryIfMissing True outDir
                 hdl <- liftIO $ openFile outFile WriteMode  -- overwrite!
                 liftIO $ hPutStr hdl mrg_str 

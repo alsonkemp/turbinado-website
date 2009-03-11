@@ -1,3 +1,6 @@
+module App.Layout.Default where
+
+import Turbinado.Layout
 import Control.Monad.Trans
 import Data.List
 import Data.Maybe
