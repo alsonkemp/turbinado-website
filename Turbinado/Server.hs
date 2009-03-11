@@ -92,7 +92,7 @@ startServer pnr
     where
       --mainLoop :: Socket -> WorkerPool -> IO ()
       mainLoop Nothing  e   Nothing               = -- Run as Server
-          do e' <- runController (addDatabaseToEnvironment) e
+          do e' <- runController (addDatabaseToEnvironment) e  -- need to add DB for this request (rather than per thread)
              workerLoop Nothing e' Nothing
       mainLoop (Just sock) e (Just workerPoolMVar) = -- Run as Server
           do (sock', sockAddr) <- accept sock
@@ -118,7 +118,7 @@ workerLoop (Just workerPoolMVar) e (Just chan)
               workerProcessRequest (Just sock) e
               putWorkerThread workerPoolMVar chan
               workerLoop (Just workerPoolMVar) e (Just chan)
-workerLoop _ e _ = error "Turbinado.Server: workerLoop: Not CGI and not Server."
+workerLoop _ e _ = error "Turbinado.Server: workerLoop: Not CGI mode and not Server mode."
 
 -- | Basic request handling: setup the 'Environment' for this request,
 -- run the real requestHandler, then ship the response back to the client.

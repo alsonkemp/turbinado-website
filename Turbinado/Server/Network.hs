@@ -45,6 +45,9 @@ acceptCGI = do body <- liftIO $ hGetContents stdin
                let rqheaders = parseHeaders $ map (\(a,b) -> a ++ ":" ++ b) hdrs
                    rquri = fromJust $ parseURI "http://www.turbinado.org"
                    rqmethod = GET
+               emergencyM $ "acceptCGI body : " ++ body  ++ "\n\n"
+               emergencyM $ "acceptCGI hdrs : " ++ (show hdrs) ++ "\n\n"
+               emergencyM $ "acceptCGI rqheaders : " ++ (show rqheaders) ++ "\n\n"
                case rqheaders of
                 Left err -> errorResponse $ show err
                 Right r  -> do e' <- getEnvironment
