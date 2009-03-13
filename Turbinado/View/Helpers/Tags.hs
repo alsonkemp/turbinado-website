@@ -4,7 +4,9 @@ module Turbinado.View.Helpers.Tags (
   javaScriptBlock
   ) where 
 
-import Turbinado.View
+import Turbinado.View.Monad
+import Turbinado.View.XML
+import Turbinado.View.XMLGenerator
 
 anchorTag :: String -> String -> View XML
 anchorTag l t = <a href=l><% t %></a>

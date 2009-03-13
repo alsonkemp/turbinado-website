@@ -1,3 +1,7 @@
+module App.Views.Home.Index where
+import Turbinado.View
+
+markup :: View XML
 markup= <div>
           <h1>Turbinado?</h1>
           <div style="float:right">

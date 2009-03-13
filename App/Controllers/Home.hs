@@ -1,3 +1,5 @@
+module App.Controllers.Home where
+
 import Turbinado.Controller
 
 index :: Controller ()

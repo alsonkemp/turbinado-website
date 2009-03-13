@@ -1,6 +1,4 @@
 module Config.App (
-  applicationPath,
-  applicationHost,
   useLowerCasePaths,
   Connection,
   customSetupFilters,
@@ -21,15 +19,13 @@ import Turbinado.Environment.Session.CookieSession
 ----------------------------------------------------------------
 -- Environment settings
 ----------------------------------------------------------------
-applicationPath = ""
-applicationHost = "localhost:8080"
 
 -- | Determines whether the server uses URLs of the form FooBar/BimBam or foo_bar/bim_bam.
 -- The Controllers and Views must still be named FooBar.hs and BimBam.hs.
 useLowerCasePaths = True
 
 ----------------------------------------------------------------
--- Session stuff
+-- Session settings
 ----------------------------------------------------------------
 sessionOpts = [ ("cookie-name", "turb-sess")
               , ("cipher-key",  "super secret phrase")

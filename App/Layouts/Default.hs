@@ -1,3 +1,6 @@
+module App.Layouts.Default where
+
+import Turbinado.Layout
 import Control.Monad.Trans
 import Data.List
 import Data.Maybe
@@ -10,11 +13,11 @@ markup = <html>
             <title>Turbinado: MVC Framework for Haskell</title>
             <meta name="keywords" content="turbinado, haskell, mvc, model, view, controller, ruby, rails"> </meta>
             <meta name="description" content="Turbinado is a Model-View-Controller-ish web framework written in Haskell.  Ruby On Rails comes to Haskell."> </meta>
-            <% styleSheet "normalize" "screen" %>
-            <% styleSheet "pressurized" "screen" %>
-            <% styleSheet "turbinado" "screen" %>
-            <% javaScript "jquery" %>
-            <% javaScript "jsddm" %>
+            <% styleSheetTag "normalize" "screen" %>
+            <% styleSheetTag "pressurized" "screen" %>
+            <% styleSheetTag "turbinado" "screen" %>
+            <% javaScriptFile "jquery" %>
+            <% javaScriptFile "jsddm" %>
             <% googleAnalytics "UA-6158816-1" %>
           </head>
           <body>

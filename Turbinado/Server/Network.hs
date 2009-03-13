@@ -42,12 +42,11 @@ sendResponse (Just sock) e = respondHTTP sock $ fromJust' "Network : sendRespons
 acceptCGI :: Controller ()
 acceptCGI = do body <- liftIO $ hGetContents stdin
                hdrs <- liftIO $ Env.getEnvironment
-               let rqheaders = parseHeaders $ map (\(a,b) -> a ++ ":" ++ b) hdrs
-                   rquri = fromJust $ parseURI "http://www.turbinado.org"
-                   rqmethod = GET
-               emergencyM $ "acceptCGI body : " ++ body  ++ "\n\n"
-               emergencyM $ "acceptCGI hdrs : " ++ (show hdrs) ++ "\n\n"
-               emergencyM $ "acceptCGI rqheaders : " ++ (show rqheaders) ++ "\n\n"
+               let rqheaders = parseHeaders $ extractHTTPHeaders hdrs
+                   rquri = fromJust' "Network: acceptCGI: parseURI failed" $ parseURI $ 
+                             fromJust' "Network: acceptCGI: No REQUEST_URI in hdrs" $ lookup "SCRIPT_URI" hdrs
+                   rqmethod = fromJust' "Network: acceptCGI: REQUEST_METHOD invalid" $ flip lookup rqMethodMap $
+                                fromJust' "Network: acceptCGI: No REQUEST_METHOD in hdrs" $ lookup "REQUEST_METHOD" hdrs
                case rqheaders of
                 Left err -> errorResponse $ show err
                 Right r  -> do e' <- getEnvironment
@@ -73,3 +72,25 @@ respondCGI :: Response -> IO ()
 respondCGI r = do let message = (unlines $ drop 1 $ lines $ show r) ++ "\n\n" ++ rspBody r   -- need to drop the first line from the response for CGI
                   hPutStr stdout message
                   hFlush stdout
+
+-- | Convert from HTTP_SOME_FLAG to Some-Flag for HTTP.parseHeaders
+extractHTTPHeaders :: [(String, String)] -> [String]
+extractHTTPHeaders [] = []
+extractHTTPHeaders (('H':'T':'T':'P':'_':k,v):hs) = (convertUnderscores k ++ ": " ++ v) : extractHTTPHeaders hs
+  where convertUnderscores []       = []
+        convertUnderscores ('_':ss) = '-' : convertUnderscores ss
+        convertUnderscores (s  :ss) =  s  : convertUnderscores ss
+extractHTTPHeaders ((k,v) : hs) = extractHTTPHeaders hs
+
+
+-- | Lifted from Network.HTTP
+rqMethodMap :: [(String, RequestMethod)]
+rqMethodMap = [("HEAD",    HEAD),
+               ("PUT",     PUT),
+               ("GET",     GET),
+               ("POST",    POST),
+               ("DELETE",  DELETE),
+               ("OPTIONS", OPTIONS),
+               ("TRACE",   TRACE)]
+
+
