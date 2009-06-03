@@ -24,7 +24,7 @@ Executable turbinado
                        HDBC-postgresql >= 2,
                        hslogger, 
                        hsx == 0.4.8, 
-                       HTTP < 4000, 
+                       HTTP >= 4000, 
                        mtl, 
                        network, 
                        old-locale, 
@@ -33,7 +33,9 @@ Executable turbinado
                        parsec, 
                        pretty, 
                        regex-compat, 
-                       time
+                       time,
+                       bytestring >= 0.9.1.4,
+                       mime >= 0.3.0
   ghc-options: -F -pgmFtrhsx
   Extensions: MultiParamTypeClasses,
             FunctionalDependencies,

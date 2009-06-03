@@ -14,7 +14,7 @@ import qualified Network.HTTP as HTTP
 import HSX.XMLGenerator (XMLGenT(..), unXMLGenT)
 import Turbinado.View.XML
 import Database.HDBC
-
+import Codec.MIME.Type (MIMEValue)
 
 -- | The class of types which hold an 'Environment'.
 -- 'View' and 'Controller' are both instances of this class.
@@ -27,10 +27,12 @@ class (MonadIO m) => HasEnvironment m where
 -- Environment can be partially constructed.
 data Environment =  Environment { getCodeStore      :: Maybe CodeStore
                                 , getDatabase       :: Maybe ConnWrapper
+                                , getFiles          :: Maybe Files
                                 , getLoggerLock     :: Maybe LoggerLock
                                 , getMimeTypes      :: Maybe MimeTypes
-                                , getRequest        :: Maybe HTTP.Request
-                                , getResponse       :: Maybe HTTP.Response
+                                , getParams         :: Maybe Params
+                                , getRequest        :: Maybe (HTTP.Request String)
+                                , getResponse       :: Maybe (HTTP.Response String)
                                 , getRoutes         :: Maybe Routes
                                 , getSession        :: Maybe Session
                                 , getSettings       :: Maybe Settings
@@ -42,8 +44,10 @@ data Environment =  Environment { getCodeStore      :: Maybe CodeStore
 newEnvironment :: Environment
 newEnvironment = Environment { getCodeStore      = Nothing
                              , getDatabase       = Nothing
+                             , getFiles          = Nothing
                              , getLoggerLock     = Nothing
                              , getMimeTypes      = Nothing
+                             , getParams         = Nothing
                              , getRequest        = Nothing
                              , getResponse       = Nothing
                              , getRoutes         = Nothing
@@ -95,6 +99,12 @@ data Cookie = Cookie {
             deriving (Show, Read, Eq, Ord)
 
 --
+-- * Types for Files
+--
+
+data Files = Files (M.Map String MIMEValue)
+
+--
 -- * Types for Logger
 --
 
@@ -110,6 +120,12 @@ data MimeType = MimeType String String
 
 instance Show MimeType where
      showsPrec _ (MimeType part1 part2) = showString (part1 ++ '/':part2)
+
+--
+-- * Types for Files
+--
+
+data Params = Params (M.Map String String)
 
 --
 -- * Types for Request

@@ -21,6 +21,6 @@ addDatabaseToEnvironment :: (HasEnvironment m) => m ()
 addDatabaseToEnvironment = do e <- getEnvironment
                               case databaseConnection of
                                 Nothing   -> return ()
-                                Just conn -> do c <- liftIO $ conn 
+                                Just conn -> do c <- liftIO $ (conn :: IO Connection)
                                                 setEnvironment $ e {getDatabase = Just (ConnWrapper c)}
 

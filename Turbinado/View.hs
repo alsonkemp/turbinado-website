@@ -54,7 +54,9 @@ import Turbinado.View.Monad hiding (liftIO)
 import Turbinado.View.XML hiding (Name)
 import Turbinado.View.XML.PCDATA
 import Turbinado.View.XMLGenerator
-import Turbinado.Utility.General
+import Turbinado.Utility.Data
+import Turbinado.Utility.Naming
+import qualified Config.Master as Config
 
 evalView :: (HasEnvironment m) => View XML -> m ()
 evalView p = do e <- getEnvironment
@@ -77,7 +79,11 @@ insertDefaultView =
 insertView :: String -> String -> View XML
 insertView c a = 
              do debugM $ "    Layout: insertView : loading   " ++ c ++ " - " ++ a
-                c <- retrieveCode CTView (c, (toLower (head a)):(tail a))
+                let converter = if Config.useLowerCasePaths
+                                    then fromUnderscore
+                                    else id
+                    filename  = joinPath $ map normalise [converter c, converter a]
+                c <- retrieveCode CTView (filename, "markup")
                 case c of
                   CodeLoadView       v _ -> v 
                   CodeLoadController _ _ -> error "retrieveAndRunLayout called, but returned CodeLoadController"
