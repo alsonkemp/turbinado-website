@@ -1,6 +1,5 @@
 module Config.App (
   useLowerCasePaths,
-  Connection,
   customSetupFilters,
   customPreFilters,
   customPostFilters,
@@ -9,8 +8,6 @@ module Config.App (
 
 import System.Log.Logger
 
--- Your favorite HDBC driver
-import Database.HDBC.PostgreSQL
 
 import Turbinado.Controller.Monad
 import Turbinado.Environment.Types
@@ -46,6 +43,6 @@ customPostFilters   = [persistSession  sessionOpts]
 ----------------------------------------------------------------
 -- Logging
 ----------------------------------------------------------------
-logLevel = ERROR -- DEBUG < INFO < NOTICE < WARNING < ERROR < CRITICAL < ALERT < EMERGENCY 
+logLevel = DEBUG -- DEBUG < INFO < NOTICE < WARNING < ERROR < CRITICAL < ALERT < EMERGENCY 
 
 

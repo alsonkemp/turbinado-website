@@ -8,11 +8,10 @@ import System.IO
 import System.IO.Unsafe
 import System.Log.Logger
 import Text.Regex
+import Text.XHtml.Strict
 import Control.Concurrent.MVar
 import Control.Monad.State
 import qualified Network.HTTP as HTTP
-import HSX.XMLGenerator (XMLGenT(..), unXMLGenT)
-import Turbinado.View.XML
 import Database.HDBC
 import Codec.MIME.Type (MIMEValue)
 
@@ -21,6 +20,10 @@ import Codec.MIME.Type (MIMEValue)
 class (MonadIO m) => HasEnvironment m where
   getEnvironment :: m Environment
   setEnvironment :: Environment -> m ()
+
+instance HasEnvironment (StateT Environment IO) where
+  getEnvironment = get
+  setEnvironment = put
 
 -- | The Environment in which each request is handled.
 -- All components are held within 'Maybe's so that the
@@ -71,9 +74,9 @@ type CodeMap    = M.Map CodeLocation CodeStatus
 data CodeStatus = CodeLoadMissing |
                   CodeLoadFailure String |
                   CodeLoadController          (StateT Environment IO ())                 CodeDate |
-                  CodeLoadView                (XMLGenT (StateT Environment IO) XML     ) CodeDate |
+                  CodeLoadView                (StateT Environment IO Html) CodeDate |
                   CodeLoadComponentController (StateT Environment IO ())                 CodeDate |
-                  CodeLoadComponentView       (XMLGenT (StateT Environment IO) XML     ) CodeDate
+                  CodeLoadComponentView       (StateT Environment IO Html) CodeDate
 
 
 --
