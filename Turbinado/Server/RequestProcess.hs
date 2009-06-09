@@ -37,7 +37,7 @@ import Turbinado.Environment.Settings
 import Turbinado.Server.Exception
 import Turbinado.Controller
 import Turbinado.View
-import Turbinado.View.XML
+import Turbinado.View.HTML
 import Turbinado.Server.StandardResponse
 
 -- | Filters to be run before the Controller are run

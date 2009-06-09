@@ -14,7 +14,7 @@ compileArgs =
         [ "-fglasgow-exts"
         , "-XOverlappingInstances"
         , "-XUndecidableInstances"
-        , "-F", "-pgmFtrhsx"
+        , "-F", "-pgmFtrturbinado"
         , "-fno-warn-overlapping-patterns"
         , "-odir " ++ compiledDir
         , "-hidir " ++ compiledDir

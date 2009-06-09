@@ -1,8 +1,9 @@
 module App.Views.Home.Index where
 import Turbinado.View
 
-markup :: View XML
-markup= <div>
+markup :: VHtml
+markup= 
+        <div>
           <h1>Turbinado?</h1>
           <div style="float:right">
             <img src="http://upload.wikimedia.org/wikipedia/en/thumb/0/0e/TurbinadoSugar.jpg/757px-TurbinadoSugar.jpg" width="300" /> 

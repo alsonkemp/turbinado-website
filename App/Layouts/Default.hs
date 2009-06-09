@@ -7,12 +7,13 @@ import Data.Maybe
 import qualified Network.HTTP as HTTP
 import qualified Network.URI  as URI
 
-markup = <html>
+markup = 
+         <html>
           <head>
             <meta name="verify-v1" content="w8VesxPmDH0sX71+bZUok+LyY0eDG5aM6v8odpbkEm8=" />
             <title>Turbinado: MVC Framework for Haskell</title>
-            <meta name="keywords" content="turbinado, haskell, mvc, model, view, controller, ruby, rails"> </meta>
-            <meta name="description" content="Turbinado is a Model-View-Controller-ish web framework written in Haskell.  Ruby On Rails comes to Haskell."> </meta>
+            <meta name="keywords" content="turbinado, haskell, mvc, model, view, controller, ruby, rails"/>
+            <meta name="description" content="Turbinado is a Model-View-Controller-ish web framework written in Haskell.  Ruby On Rails comes to Haskell."/>
             <% styleSheetTag "normalize" "screen" %>
             <% styleSheetTag "pressurized" "screen" %>
             <% styleSheetTag "turbinado" "screen" %>
@@ -58,9 +59,10 @@ markup = <html>
           </body>
          </html>
 
-menuItem :: FilePath -> String -> View XML
+menuItem :: FilePath -> String -> VHtml
 menuItem p t = do e <- getEnvironment
                   let ru = HTTP.rqURI $ fromJust $ getRequest e
                       active = if isPrefixOf p (URI.uriPath ru) then "active" else ""
-                  <li class=active><a href=p><%t%></a></li>
+                  %li
+                    %a{href=p}= t
 

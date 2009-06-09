@@ -1,7 +1,8 @@
 module App.Views.Develop.Index where
 import Turbinado.View
 
-markup   =  <div>
+markup   =  
+            <div>
               <h2>! Windows</h2>
               <p>This software doesn't work on Windows.  Linux/Unix only at this point.</p>
               
@@ -12,7 +13,7 @@ markup   =  <div>
               <h2>To Do</h2>
               <ul class="standard-list">
                 <li>
-                  Move to a simpler templating system (e.g. <% anchorTag "http://haml.hamptoncatlin.com/" "HAML" %>-like ).  HSX is a lovely piece of work, but it's pretty finicky and I feel like I'm trying to "see the Matrix" when I read its compilation error messages.
+                  Move to a simpler templating system (e.g. <% anchorTag "http://haml.hamptoncatlin.com/" "HAML" %>-like ).  HSX is a lovely piece of work, but it's pretty finicky and I feel like I'm trying to \"see the Matrix\" when I read its compilation error messages.
                 </li>
                 <li>Build a mini-CMS to manage these pages.</li>
                 <li>Complete the ORM in Turbinado/Database/ORM.</li>

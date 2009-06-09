@@ -1,4 +1,4 @@
-module Main where
+module Turbinado.PreProcessor.Parser.HAML (hamlParser) where
 
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
@@ -7,18 +7,11 @@ import qualified Text.ParserCombinators.Parsec.Token as T
 import Data.Char
 import Data.List
 import Data.Maybe
-import System.IO.Unsafe
+import Turbinado.PreProcessor.Parser.Common
 
-main = do s <- getContents 
-          case (parse mainParser "stdin" s) of
-            Left  err -> putStrLn "Error: " >> print err
-            Right hs  -> putStrLn hs
+-- | HAML code starts with a HAML tag.
+hamlParser = pTag
 
--- Try to parse HAML, otherwise re-output raw lines
-
-mainParser = do whiteSpace
-                ls <- many1 (hamlCode <|> tilEOL)
-                return $ unlines ls
 --
 -- * HAML lexer
 --
@@ -29,7 +22,7 @@ symbol    = T.symbol hamlLexer
 natural   = T.natural hamlLexer
 parens    = T.parens hamlLexer
 semi      = T.semi hamlLexer
-squares   = T.squares hamlLexer
+braces    = T.braces hamlLexer
 stringLiteral= T.stringLiteral hamlLexer
 identifier= T.identifier hamlLexer
 reserved  = T.reserved hamlLexer
@@ -38,46 +31,29 @@ commaSep1 = T.commaSep1 hamlLexer
 --
 -- * Main HAML parsers
 --
-
--- hamlCode is just many identifiers followed by = followed by a hamlBlock
--- f a b c = %somehaml
-hamlCode = try ( do is <- many1 identifier
-                    symbol "="
-                    currentPos <- getPosition
-                    x <- manyTill1 
-                          (lexeme $ hamlBlock)
-                          (notSameIndent currentPos)
-                    return $ (concat $ intersperse " " is) ++ 
-                             " = \n" ++
-                             (concat $ (intersperse (indent currentPos ++ "+++\n")  $ filter (not . null) $ x))
-                  )
-
--- A Block may start with some whitespace, then has a valid bit of data
-hamlBlock   = do currentPos <- getPosition
+                          
+-- A Block always starts with some whitespace, then has a valid bit of data
+hamlBlock   = do whiteSpace
+                 currentPos <- getPosition
                  bs <- manyTill1
-                      (pTag <|> pText)
-                      (notSameIndent currentPos)
-                 return $ intercalate (indent currentPos ++ "+++\n") bs
+                      (try pTag <|> pText <?> "tag or text")
+                      (shallower currentPos)
+                 return $ intercalate "+++\n" bs
 
 pTag    = do    currentPos <- getPosition
                 try
-                    (do t  <- lexeme tagParser
-                        ts <- (isInline currentPos >> char '/' >> return []) <|>
-                              (hamlBlock) 
+                    (do t  <- lexeme tagParser <?> "tag"
+                        ts <- ((closeTag currentPos <|> eol) >> return []) <|>
+                              (try hamlBlock) <|>
+                              (blankLine) <?> "closing tag, block or blankLine in pTag"
                         return $ intercalate "\n" $ filter (not . null) $
                           [ (indent currentPos) ++ "((" ++ (if (null ts) then "i" else "") ++ t  ++ ")"
                           , if null ts then [] else ts
-                          , (indent currentPos) ++ ")\n"]
+                          , (indent currentPos) ++ " )"]
                     )
 
 pText = lexeme stringParser
-
-notSameIndent p = (eof >> return []) <|> 
-                  (do innerPos <- getPosition
-                      case (sourceColumn p) == (sourceColumn innerPos) of
-                                True  -> pzero
-                                False -> return []
-                  )
+closeTag p = isInline p >> char '/'
 
 --
 -- * Various little parsers
@@ -116,24 +92,24 @@ classParser = do char '.'
                  many1 termChar
 
 attributesParser :: CharParser () [(String, String)]
-attributesParser = squares (commaSep1 attributeParser)
+attributesParser = braces (commaSep1 attributeParser)
 
 attributeParser :: CharParser () (String, String)
-attributeParser = do k <- identifier
+attributeParser = do k <- identifier <?> "identifier in key of attribute"
                      symbol "="
-                     cs <- many1 identifier
+                     cs <- many1 identifier <?> "identifier in value of attribute"
                      return (k, intercalate " " cs)
                  
 stringParser :: CharParser () String
 stringParser = do   currentPos <- getPosition
                     modifier <- optionMaybe (char '=' <|> char '-')
                     whiteSpace
-                    c <- alphaNum
                     cs<- tilEOL
                     case modifier of
-                      Just '-' -> return $ (indent currentPos) ++ "-" ++ c:cs
-                      Just '=' -> return $ (indent currentPos) ++ "(stringToHtml " ++ c:cs ++ ")"
-                      Nothing  -> return $ (indent currentPos) ++ "(stringToHtml \"" ++ c:cs ++ "\")"
+                      Just '-' -> do b <- hamlBlock
+                                     return $ (indent currentPos) ++ "(" ++ cs ++ "\n" ++ b ++ "\n" ++ (indent currentPos) ++ ")"
+                      Just '=' -> return $ (indent currentPos) ++ "(stringToVHtml $ " ++ cs ++ ")"
+                      Nothing  -> return $ (indent currentPos) ++ "(stringToVHtml \"" ++ cs ++ "\")"
                       
                       
 --
@@ -146,14 +122,22 @@ isInline     p = do p2 <- getPosition
                       False -> pzero
 isSameIndent p1 p2 = (sourceColumn p1) == (sourceColumn p2)
 
-tilEOL = manyTill1 (noneOf "\n") eol           
-eol = newline <|> (eof >> return '\n')
 
 termChar = satisfy (\c -> (isAlphaNum c) || (c `elem` termPunctuation) )
 termPunctuation = "-_"
-indent p = take (sourceColumn (p) - 1) (repeat ' ')
 
-manyTill1 p e =  do ms <- manyTill p e
-                    case (null ms) of
-                      True  -> pzero
-                      False -> return ms
+
+shallower p     = (eof >> return []) <|> 
+                  (do innerPos <- getPosition
+                      case (sourceColumn innerPos) < (sourceColumn p) of
+                                True  -> return []
+                                False -> pzero
+                  )
+
+deeper p        = (eof >> return []) <|> 
+                  (do innerPos <- getPosition
+                      case (sourceColumn innerPos) > (sourceColumn p) of
+                                True  -> return []
+                                False -> pzero
+                  )
+
