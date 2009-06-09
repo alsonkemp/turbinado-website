@@ -1,0 +1,6 @@
+#!/bin/sh
+
+runghc Setup.lhs configure
+runghc Setup.lhs build
+runghc Setup.lhs haddock --hscolour-css=static/css/hscolour.css --hyperlink-source
+
