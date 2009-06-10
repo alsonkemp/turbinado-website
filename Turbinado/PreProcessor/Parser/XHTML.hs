@@ -1,4 +1,4 @@
-module Turbinado.PreProcessor.Parser.XHTML  where
+module Parser.XHTML  where
 
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
@@ -7,7 +7,8 @@ import qualified Text.ParserCombinators.Parsec.Token as T
 import Data.Char
 import Data.List
 import Data.Maybe
-import Turbinado.PreProcessor.Parser.Common
+
+import Parser.Common
 
 -- | XHTML begins with a valid tag
 xhtmlParser = pTag

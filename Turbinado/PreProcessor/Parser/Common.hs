@@ -1,4 +1,4 @@
-module Turbinado.PreProcessor.Parser.Common where
+module Parser.Common where
 
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language

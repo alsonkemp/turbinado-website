@@ -1,4 +1,4 @@
-module Turbinado.PreProcessor.Parser.HAML (hamlParser) where
+module Parser.HAML (hamlParser) where
 
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
@@ -7,7 +7,8 @@ import qualified Text.ParserCombinators.Parsec.Token as T
 import Data.Char
 import Data.List
 import Data.Maybe
-import Turbinado.PreProcessor.Parser.Common
+
+import Parser.Common
 
 -- | HAML code starts with a HAML tag.
 hamlParser = pTag

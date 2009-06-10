@@ -9,10 +9,11 @@ import Data.List
 import Data.Maybe
 import System.Environment
 import System.IO.Unsafe
-import Turbinado.PreProcessor.Parser.HAML
-import Turbinado.PreProcessor.Parser.XHTML
-import Turbinado.PreProcessor.Parser.Id
-import Turbinado.PreProcessor.Parser.Common
+
+import Parser.HAML
+import Parser.XHTML
+import Parser.Id
+import Parser.Common
 
 main = do args <- getArgs
           case args of

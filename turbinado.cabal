@@ -10,28 +10,6 @@ Homepage:            http://www.turbinado.org
 Build-Type:          Simple
 Cabal-Version:          >= 1.6
 
-Executable trturbinado
-  Main-is:             Turbinado/PreProcessor/trturbinado.hs
-  Build-Depends:       base >= 4, 
-                       containers, 
-                       directory, 
-                       filepath,
-                       mtl, 
-                       parsec, 
-                       xhtml
-  Extensions: MultiParamTypeClasses,
-              FunctionalDependencies,
-              TypeFamilies,
-              RankNTypes,
-              PolymorphicComponents,
-              FlexibleContexts,
-              FlexibleInstances,
-              EmptyDataDecls,
-              TypeSynonymInstances,
-              PatternGuards,
-              MultiParamTypeClasses,
-              ScopedTypeVariables
-
 Executable turbinado
   Main-is:             Turbinado/Main.hs
   Build-Depends:       base >= 4, 
