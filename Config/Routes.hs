@@ -1,7 +1,6 @@
 module Config.Routes where
 
-import App.Controllers.Home
-import App.Controllers.Develop
+import App.Controllers.HelloWorld
 
 --
 -- Import modules for which you'll be creating static routes.
@@ -23,12 +22,16 @@ routes = [ "/:controller/:action/:id.:format"
 -- Statically compile and load these Layouts, Controllers and Views
 --
 staticLayouts =
-    []
+    [
+      ("App/Layouts/Default.hs",    "index", App.Layout.Default.markup)
+    ]
 
 staticControllers = 
-    [ ("App/Controllers/Home.hs",    "index", App.Controllers.Home.index)
-    , ("App/Controllers/Develop.hs", "index", App.Controllers.Develop.index)
+    [ 
+      ("App/Controller/HelloWorld.hs",    "index", App.Controllers.HelloWorld.index)
     ]
 
 staticViews =
-    []
+    [
+      ("App/Views/HelloWorld/Index.hs",    "index", App.Views.HelloWorld.index)
+    ]
