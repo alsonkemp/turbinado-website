@@ -36,22 +36,19 @@ commaSep1 = T.commaSep1 hamlLexer
 -- A Block always starts with some whitespace, then has a valid bit of data
 hamlBlock   = do whiteSpace
                  currentPos <- getPosition
-                 bs <- manyTill1
-                      (try pTag <|> pText <?> "tag or text")
-                      (shallower currentPos)
-                 return $ intercalate "+++\n" bs
+                 bs <- (try pTag) <|> pText <?> "tag or text"
+                 return bs
 
 pTag    = do    currentPos <- getPosition
-                try
-                    (do t  <- lexeme tagParser <?> "tag"
-                        ts <- ((closeTag currentPos <|> eol) >> return []) <|>
-                              (try hamlBlock) <|>
-                              (blankLine) <?> "closing tag, block or blankLine in pTag"
-                        return $ intercalate "\n" $ filter (not . null) $
+                t  <- lexeme tagParser <?> "tag"
+                nc <- optionMaybe $ closeTag currentPos
+                ts <- if (isJust nc)
+                                then return []
+                                else manyTill1 hamlBlock (shallowerOrEqual currentPos)
+                return $ intercalate "\n" $ filter (not . null) $
                           [ (indent currentPos) ++ "((" ++ (if (null ts) then "i" else "") ++ t  ++ ")"
-                          , if null ts then [] else ts
+                          , if (not $ null ts) then (indent currentPos ++ " (\n" ++ (intercalate "+++\n" ts ) ++ ")") else ""
                           , (indent currentPos) ++ " )"]
-                    )
 
 pText = lexeme stringParser
 closeTag p = isInline p >> char '/'
@@ -131,6 +128,14 @@ termPunctuation = "-_"
 shallower p     = (eof >> return []) <|> 
                   (do innerPos <- getPosition
                       case (sourceColumn innerPos) < (sourceColumn p) of
+                                True  -> return []
+                                False -> pzero
+                  )
+
+shallowerOrEqual p = 
+                  (eof >> return []) <|> 
+                  (do innerPos <- getPosition
+                      case (sourceColumn innerPos) <= (sourceColumn p) of
                                 True  -> return []
                                 False -> pzero
                   )

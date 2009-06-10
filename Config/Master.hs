@@ -19,6 +19,7 @@ compileArgs =
         , "-odir " ++ compiledDir
         , "-hidir " ++ compiledDir
         , "-package HDBC"
+        -- , "-keep-tmp-files"
         , "-O"
         ]
 

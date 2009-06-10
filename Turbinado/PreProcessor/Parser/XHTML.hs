@@ -48,7 +48,7 @@ xhtmlBlock :: CharParser () String
 xhtmlBlock  = do whiteSpace
                  currentPos <- getPosition
                  bs <- (try pTag) <|> (try pPrintCode) <|> (try pCode) <|> pText
-                 return $ bs
+                 return  bs
 
 pTag :: CharParser () String
 pTag    = do    currentPos <- getPosition
@@ -58,7 +58,7 @@ pTag    = do    currentPos <- getPosition
                           else (manyTill1 xhtmlBlock (fromJust ctag))
                 return $ intercalate "\n" $ filter (not . null) $
                           [ (indent currentPos) ++ "((" ++ t  ++ ")"
-                          , if (not $ null ts) then (indent currentPos ++ "(\n" ++ (intercalate "+++\n" ts ) ++ ")") else ""
+                          , if (not $ null ts) then (indent currentPos ++ " (\n" ++ (intercalate "+++\n" ts ) ++ ")") else ""
                           , (indent currentPos) ++ " )"
                           ]
                 <?> "tag for pTag"

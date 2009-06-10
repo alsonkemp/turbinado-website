@@ -93,7 +93,7 @@ retrieveAndRunController =
 
 -- | This function dynamically loads (if needed) the 'View'
 -- using the information provided by the 'Routes'.  Views reside
--- in @App/Views@ and Layouts reside in @App/Layouts.  
+-- in @App/Views@ and Layouts reside in @App/Layouts@.  
 -- The 'View' must contain a @markup@ function.
 -- The first 'View' loaded is usually the Layout, which itself
 -- loads the actual 'View'.  If the @layout@ setting is empty, then
